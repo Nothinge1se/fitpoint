@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitPoint Gym – Harirampur, Dakshin Dinajpur</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Barlow+Condensed:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E8321A;
+    --red-dark: #B52512;
+    --black: #0A0A0A;
+    --dark: #111111;
+    --dark2: #1A1A1A;
+    --dark3: #242424;
+    --gray: #888;
+    --light: #f0ede8;
+    --white: #fff;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+    --font-cond: 'Barlow Condensed', sans-serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ---- NAV ---- */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:999;
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(232,50,26,0.3);
+    display: flex; align-items:center; justify-content:space-between;
+    padding: 0 5%;
+    height: 70px;
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    letter-spacing: 3px;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--red); }
+  .nav-links {
+    display: flex; gap: 2rem; list-style:none;
+  }
+  .nav-links a {
+    font-family: var(--font-cond);
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ccc;
+    text-decoration: none;
+    transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--red); }
+  .nav-cta {
+    background: var(--red);
+    color: var(--white) !important;
+    padding: 8px 20px !important;
+    border-radius: 3px;
+  }
+  .nav-cta:hover { background: var(--red-dark); color: var(--white) !important; }
+
+  .hamburger {
+    display:none; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none;
+  }
+  .hamburger span {
+    display:block; width:26px; height:2px; background:var(--white); transition:.3s;
+  }
+  .mobile-menu {
+    display:none; position:fixed; top:70px; left:0; right:0; z-index:998;
+    background: rgba(10,10,10,0.98);
+    padding: 2rem;
+    border-bottom: 1px solid #333;
+  }
+  .mobile-menu.open { display:block; }
+  .mobile-menu a {
+    display:block; padding:14px 0;
+    font-family: var(--font-cond);
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    text-transform:uppercase;
+    color: #ccc;
+    text-decoration:none;
+    border-bottom: 1px solid #222;
+  }
+  .mobile-menu a:hover { color:var(--red); }
+
+  /* ---- HERO ---- */
+  #home {
+    position:relative; min-height:100vh;
+    display:flex; align-items:center;
+    overflow:hidden;
+  }
+  .hero-bg {
+    position:absolute; inset:0;
+    background: linear-gradient(135deg, #0A0A0A 0%, #1a0a07 50%, #0A0A0A 100%);
+  }
+  .hero-bg::before {
+    content:'';
+    position:absolute; inset:0;
+    background: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80') center/cover no-repeat;
+    opacity:0.2;
+  }
+  .hero-bg::after {
+    content:'';
+    position:absolute; inset:0;
+    background: linear-gradient(to right, rgba(10,10,10,1) 30%, rgba(10,10,10,0.2) 100%);
+  }
+  .hero-content {
+    position:relative; z-index:2;
+    padding: 120px 5% 80px;
+    max-width: 700px;
+  }
+  .hero-tag {
+    display:inline-block;
+    font-family: var(--font-cond);
+    font-size: .85rem;
+    letter-spacing: 4px;
+    text-transform:uppercase;
+    color: var(--red);
+    border: 1px solid var(--red);
+    padding: 5px 16px;
+    margin-bottom: 1.5rem;
+    border-radius: 2px;
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 10vw, 8rem);
+    line-height: .9;
+    letter-spacing: 2px;
+    margin-bottom: 1.5rem;
+  }
+  .hero-title .accent { color: var(--red); }
+  .hero-sub {
+    font-size: 1.15rem;
+    color: #bbb;
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    max-width: 480px;
+  }
+  .hero-btns { display:flex; gap:1rem; flex-wrap:wrap; }
+  .btn-primary {
+    background: var(--red); color: var(--white);
+    padding: 14px 36px;
+    font-family: var(--font-cond);
+    font-size: 1rem; font-weight:700;
+    letter-spacing: 3px; text-transform:uppercase;
+    text-decoration:none; border-radius:3px;
+    border:2px solid var(--red);
+    transition: .2s;
+    cursor:pointer;
+  }
+  .btn-primary:hover { background:var(--red-dark); border-color:var(--red-dark); }
+  .btn-outline {
+    background:transparent; color:var(--white);
+    padding:14px 36px;
+    font-family: var(--font-cond);
+    font-size:1rem; font-weight:700;
+    letter-spacing:3px; text-transform:uppercase;
+    text-decoration:none; border-radius:3px;
+    border:2px solid rgba(255,255,255,0.4);
+    transition:.2s;
+  }
+  .btn-outline:hover { border-color:var(--white); }
+
+  .hero-stats {
+    position:relative; z-index:2;
+    display:flex; gap:0;
+    padding: 0 5%;
+    border-top: 1px solid #1f1f1f;
+    background: rgba(10,10,10,0.9);
+  }
+  .stat-item {
+    flex:1; text-align:center;
+    padding: 1.8rem 1rem;
+    border-right: 1px solid #1f1f1f;
+  }
+  .stat-item:last-child { border-right:none; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    color: var(--red);
+    display:block;
+  }
+  .stat-label {
+    font-family: var(--font-cond);
+    font-size:.8rem; letter-spacing:2px;
+    text-transform:uppercase; color:#888;
+  }
+
+  /* ---- SECTIONS ---- */
+  section { padding: 80px 5%; }
+  .section-tag {
+    font-family: var(--font-cond);
+    font-size:.8rem; letter-spacing:4px;
+    text-transform:uppercase; color:var(--red);
+    display:block; margin-bottom:.75rem;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height:1; letter-spacing:1px;
+    margin-bottom:1.2rem;
+  }
+  .section-sub {
+    color:#999; font-weight:300;
+    max-width:560px; margin-bottom:3rem;
+    font-size:1.05rem;
+  }
+
+  /* ---- ABOUT ---- */
+  #about { background: var(--dark); }
+  .about-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:5rem; align-items:center;
+  }
+  .about-img-wrap {
+    position:relative;
+  }
+  .about-img-wrap img {
+    width:100%; aspect-ratio:4/5;
+    object-fit:cover; border-radius:4px;
+    filter: brightness(0.85) contrast(1.1);
+  }
+  .about-img-badge {
+    position:absolute; bottom:-20px; right:-20px;
+    background:var(--red); color:var(--white);
+    padding:20px 24px;
+    font-family:var(--font-display);
+    font-size:1rem; letter-spacing:2px;
+    text-align:center; line-height:1.3;
+    border-radius:3px;
+  }
+  .about-img-badge strong { font-size:2.5rem; display:block; }
+  .about-features {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:1.2rem; margin-top:2rem;
+  }
+  .about-feat {
+    display:flex; align-items:flex-start; gap:.8rem;
+  }
+  .feat-icon {
+    width:36px; height:36px; min-width:36px;
+    background:rgba(232,50,26,0.15);
+    border:1px solid rgba(232,50,26,0.3);
+    border-radius:3px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1rem;
+  }
+  .feat-text strong { display:block; font-size:.9rem; font-weight:600; }
+  .feat-text span { font-size:.82rem; color:#888; }
+
+  /* ---- FACILITIES ---- */
+  #facilities { background: var(--black); }
+  .facilities-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+    gap:1.5rem;
+  }
+  .facility-card {
+    background:var(--dark2);
+    border: 1px solid #2a2a2a;
+    border-radius:4px; overflow:hidden;
+    transition:.3s;
+  }
+  .facility-card:hover { border-color:var(--red); transform:translateY(-4px); }
+  .facility-card img {
+    width:100%; aspect-ratio:16/9;
+    object-fit:cover; filter:brightness(0.75) contrast(1.1);
+    transition:.3s;
+  }
+  .facility-card:hover img { filter:brightness(0.9) contrast(1.15); }
+  .facility-body { padding:1.2rem 1.4rem; }
+  .facility-body h3 {
+    font-family:var(--font-cond);
+    font-size:1.1rem; letter-spacing:2px;
+    text-transform:uppercase; margin-bottom:.4rem;
+  }
+  .facility-body p { font-size:.88rem; color:#888; line-height:1.6; }
+
+  /* ---- MEMBERSHIP ---- */
+  #membership { background: var(--dark); }
+  .plans-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+    gap:1.5rem;
+  }
+  .plan-card {
+    background:var(--dark2);
+    border:1px solid #2a2a2a;
+    border-radius:4px; padding:2.5rem 2rem;
+    position:relative; transition:.3s;
+  }
+  .plan-card.featured {
+    background:var(--red);
+    border-color:var(--red);
+  }
+  .plan-card.featured .plan-price,
+  .plan-card.featured .plan-name { color:var(--white); }
+  .plan-card.featured li { color:rgba(255,255,255,0.85); }
+  .plan-card.featured .plan-sub { color:rgba(255,255,255,0.7); }
+  .plan-badge {
+    position:absolute; top:-12px; left:50%; transform:translateX(-50%);
+    background:var(--white); color:var(--red);
+    font-family:var(--font-cond); font-size:.75rem;
+    letter-spacing:2px; text-transform:uppercase;
+    padding:4px 14px; border-radius:20px;
+    font-weight:700;
+  }
+  .plan-name {
+    font-family:var(--font-cond); font-size:.85rem;
+    letter-spacing:3px; text-transform:uppercase;
+    color:#888; margin-bottom:.5rem;
+  }
+  .plan-price {
+    font-family:var(--font-display);
+    font-size:3.5rem; line-height:1;
+    color:var(--white); margin-bottom:.25rem;
+  }
+  .plan-price sup { font-size:1.5rem; vertical-align:top; margin-top:.6rem; display:inline-block; }
+  .plan-price sub { font-size:1rem; color:#aaa; font-family:var(--font-body); }
+  .plan-card.featured .plan-price sub { color:rgba(255,255,255,0.6); }
+  .plan-sub { font-size:.82rem; color:#666; margin-bottom:1.5rem; }
+  .plan-card ul { list-style:none; margin-bottom:2rem; }
+  .plan-card li {
+    font-size:.9rem; color:#bbb; padding:.5rem 0;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    display:flex; align-items:center; gap:.6rem;
+  }
+  .plan-card li::before { content:'✓'; color:var(--red); font-weight:700; }
+  .plan-card.featured li::before { color:#ffcfc7; }
+  .btn-plan {
+    display:block; width:100%;
+    background:rgba(232,50,26,0.15); color:var(--red);
+    border:1px solid rgba(232,50,26,0.4);
+    padding:12px; text-align:center;
+    font-family:var(--font-cond); font-size:.85rem;
+    letter-spacing:2px; text-transform:uppercase;
+    text-decoration:none; border-radius:3px;
+    cursor:pointer; font-weight:700; transition:.2s;
+  }
+  .btn-plan:hover { background:var(--red); color:var(--white); }
+  .plan-card.featured .btn-plan {
+    background:rgba(255,255,255,0.2); color:var(--white);
+    border-color:rgba(255,255,255,0.4);
+  }
+  .plan-card.featured .btn-plan:hover { background:rgba(255,255,255,0.35); }
+
+  /* ---- TRAINERS ---- */
+  #trainers { background: var(--black); }
+  .trainers-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap:1.5rem;
+  }
+  .trainer-card {
+    background:var(--dark2); border:1px solid #2a2a2a;
+    border-radius:4px; overflow:hidden; transition:.3s;
+  }
+  .trainer-card:hover { border-color:var(--red); }
+  .trainer-card img {
+    width:100%; aspect-ratio:3/4;
+    object-fit:cover; object-position:top center;
+    filter:grayscale(20%) contrast(1.1);
+    transition:.3s;
+  }
+  .trainer-card:hover img { filter:grayscale(0%) contrast(1.15); }
+  .trainer-body { padding:1.2rem 1.4rem; }
+  .trainer-body h3 {
+    font-family:var(--font-cond); font-size:1.2rem;
+    letter-spacing:1px; margin-bottom:.2rem;
+  }
+  .trainer-spec {
+    font-size:.8rem; color:var(--red);
+    font-family:var(--font-cond); letter-spacing:2px;
+    text-transform:uppercase; margin-bottom:.6rem;
+  }
+  .trainer-body p { font-size:.83rem; color:#888; }
+
+  /* ---- SCHEDULE ---- */
+  #schedule { background: var(--dark); }
+  .schedule-table-wrap { overflow-x:auto; }
+  .schedule-table {
+    width:100%; min-width:600px;
+    border-collapse:collapse;
+  }
+  .schedule-table th {
+    font-family:var(--font-cond); font-size:.8rem;
+    letter-spacing:2px; text-transform:uppercase;
+    color:#888; padding:1rem; text-align:left;
+    border-bottom:1px solid #2a2a2a;
+  }
+  .schedule-table td {
+    padding:.85rem 1rem; font-size:.9rem;
+    border-bottom:1px solid #1a1a1a;
+  }
+  .schedule-table tr:hover td { background:rgba(232,50,26,0.04); }
+  .class-badge {
+    display:inline-block; padding:3px 10px;
+    font-family:var(--font-cond); font-size:.72rem;
+    letter-spacing:1px; text-transform:uppercase;
+    border-radius:20px;
+  }
+  .badge-cardio { background:rgba(232,50,26,0.15); color:#ff7a68; }
+  .badge-strength { background:rgba(59,130,246,0.15); color:#7fb3f8; }
+  .badge-yoga { background:rgba(16,185,129,0.15); color:#5ddbaf; }
+  .badge-hiit { background:rgba(245,158,11,0.15); color:#f9c74f; }
+  .badge-boxing { background:rgba(168,85,247,0.15); color:#c77dff; }
+
+  /* ---- GALLERY ---- */
+  #gallery { background:var(--black); }
+  .gallery-grid {
+    columns: 3; gap:1rem;
+  }
+  .gallery-grid img {
+    width:100%; margin-bottom:1rem;
+    border-radius:4px; display:block;
+    filter:brightness(0.8) contrast(1.05) saturate(0.9);
+    transition:.3s; cursor:pointer;
+    break-inside:avoid;
+  }
+  .gallery-grid img:hover {
+    filter:brightness(1) contrast(1.1) saturate(1.1);
+    transform:scale(1.01);
+  }
+
+  /* ---- TESTIMONIALS ---- */
+  #testimonials { background:var(--dark); }
+  .testi-grid {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:1.5rem;
+  }
+  .testi-card {
+    background:var(--dark2); border:1px solid #2a2a2a;
+    border-radius:4px; padding:2rem;
+  }
+  .testi-stars { color:var(--red); font-size:1.1rem; margin-bottom:1rem; }
+  .testi-text { font-size:.95rem; color:#bbb; font-style:italic; margin-bottom:1.5rem; line-height:1.7; }
+  .testi-author { display:flex; align-items:center; gap:.8rem; }
+  .testi-avatar {
+    width:42px; height:42px; border-radius:50%;
+    object-fit:cover; object-position:top;
+    filter:grayscale(30%);
+  }
+  .testi-name { font-weight:600; font-size:.9rem; }
+  .testi-since { font-size:.78rem; color:#666; }
+
+  /* ---- BOOK ---- */
+  #book {
+    background: linear-gradient(135deg, #0d0604 0%, #1a0a07 50%, #0d0604 100%);
+    position:relative; overflow:hidden;
+  }
+  #book::before {
+    content:'';
+    position:absolute; inset:0;
+    background:url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1400&q=80') center/cover;
+    opacity:.05;
+  }
+  #book::after {
+    content:'FITPOINT';
+    position:absolute; right:-2%; top:50%; transform:translateY(-50%);
+    font-family:var(--font-display);
+    font-size:clamp(8rem,18vw,18rem);
+    color:rgba(255,255,255,0.02);
+    letter-spacing:-5px; pointer-events:none;
+    line-height:1;
+  }
+  .book-inner { position:relative; z-index:2; }
+  .book-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:5rem; align-items:start;
+  }
+  .book-info h2 { margin-bottom:.5rem; }
+  .book-perks { margin:2rem 0; }
+  .perk {
+    display:flex; align-items:flex-start; gap:1rem;
+    margin-bottom:1.2rem;
+  }
+  .perk-icon {
+    width:42px; height:42px; min-width:42px;
+    background:rgba(232,50,26,0.12);
+    border:1px solid rgba(232,50,26,0.25);
+    border-radius:3px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem;
+  }
+  .perk strong { display:block; margin-bottom:.2rem; }
+  .perk p { font-size:.85rem; color:#888; }
+
+  .booking-form {
+    background:rgba(255,255,255,0.03);
+    border:1px solid #2a2a2a;
+    border-radius:6px; padding:2.5rem;
+  }
+  .form-title {
+    font-family:var(--font-cond); font-size:1.4rem;
+    letter-spacing:2px; text-transform:uppercase;
+    margin-bottom:2rem; color:var(--white);
+  }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
+  .form-group { margin-bottom:1rem; }
+  .form-group label {
+    display:block; font-size:.78rem; letter-spacing:2px;
+    text-transform:uppercase; color:#888;
+    font-family:var(--font-cond); margin-bottom:.5rem;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width:100%; background:rgba(255,255,255,0.05);
+    border:1px solid #333; border-radius:3px;
+    color:var(--white); font-family:var(--font-body);
+    font-size:.9rem; padding:12px 14px;
+    outline:none; transition:.2s;
+    -webkit-appearance:none;
+  }
+  .form-group select option { background:#222; color:#fff; }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color:var(--red);
+    background:rgba(232,50,26,0.05);
+  }
+  .form-group textarea { min-height:90px; resize:vertical; }
+  .form-group input::placeholder,
+  .form-group textarea::placeholder { color:#555; }
+  .btn-submit {
+    width:100%; background:var(--red); color:var(--white);
+    border:none; padding:16px;
+    font-family:var(--font-cond); font-size:1rem;
+    font-weight:700; letter-spacing:3px; text-transform:uppercase;
+    border-radius:3px; cursor:pointer; transition:.2s;
+    margin-top:.5rem;
+  }
+  .btn-submit:hover { background:var(--red-dark); }
+  .form-success {
+    display:none; text-align:center; padding:3rem 2rem;
+  }
+  .form-success .tick { font-size:3rem; margin-bottom:1rem; }
+  .form-success h3 {
+    font-family:var(--font-display); font-size:2rem;
+    color:var(--red); margin-bottom:.5rem;
+  }
+  .form-success p { color:#888; font-size:.9rem; }
+
+  /* ---- CONTACT ---- */
+  #contact { background:var(--dark2); }
+  .contact-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:5rem; align-items:start;
+  }
+  .contact-info h2 { margin-bottom:.5rem; }
+  .contact-items { margin-top:2rem; }
+  .contact-item {
+    display:flex; align-items:flex-start; gap:1rem;
+    margin-bottom:1.5rem; padding-bottom:1.5rem;
+    border-bottom:1px solid #2a2a2a;
+  }
+  .contact-item:last-child { border-bottom:none; }
+  .contact-icon {
+    width:44px; height:44px; min-width:44px;
+    background:rgba(232,50,26,0.1);
+    border:1px solid rgba(232,50,26,0.2);
+    border-radius:3px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem;
+  }
+  .contact-item strong { display:block; margin-bottom:.2rem; font-size:.9rem; }
+  .contact-item p { font-size:.85rem; color:#888; line-height:1.6; }
+  .map-embed {
+    border-radius:4px; overflow:hidden;
+    border:1px solid #2a2a2a;
+    height:350px; background:#1a1a1a;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .map-placeholder { text-align:center; color:#555; }
+  .map-placeholder .map-icon { font-size:3rem; margin-bottom:1rem; }
+  .map-placeholder p { font-size:.85rem; }
+  .map-placeholder a { color:var(--red); text-decoration:none; }
+
+  /* ---- HOURS STRIP ---- */
+  .hours-strip {
+    background:var(--red);
+    padding:1.5rem 5%;
+    display:flex; align-items:center; justify-content:center;
+    flex-wrap:wrap; gap:2rem;
+  }
+  .hour-block { text-align:center; }
+  .hour-block .day {
+    font-family:var(--font-cond); font-size:.75rem;
+    letter-spacing:2px; text-transform:uppercase;
+    opacity:.8;
+  }
+  .hour-block .time {
+    font-family:var(--font-cond); font-size:1.1rem;
+    font-weight:700; letter-spacing:1px;
+  }
+  .hours-divider { width:1px; height:40px; background:rgba(255,255,255,0.3); }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background:var(--black);
+    border-top:1px solid #1a1a1a;
+    padding:3rem 5% 2rem;
+  }
+  .footer-grid {
+    display:grid; grid-template-columns:2fr 1fr 1fr;
+    gap:3rem; margin-bottom:3rem;
+  }
+  .footer-brand .logo {
+    font-family:var(--font-display); font-size:2.2rem;
+    letter-spacing:3px; text-decoration:none; color:var(--white);
+    display:block; margin-bottom:1rem;
+  }
+  .footer-brand .logo span { color:var(--red); }
+  .footer-brand p { font-size:.88rem; color:#666; line-height:1.7; }
+  .footer-col h4 {
+    font-family:var(--font-cond); font-size:.8rem;
+    letter-spacing:3px; text-transform:uppercase; color:#888;
+    margin-bottom:1.2rem;
+  }
+  .footer-col ul { list-style:none; }
+  .footer-col li { margin-bottom:.7rem; }
+  .footer-col a { font-size:.88rem; color:#666; text-decoration:none; transition:.2s; }
+  .footer-col a:hover { color:var(--red); }
+  .footer-bottom {
+    display:flex; justify-content:space-between; align-items:center;
+    border-top:1px solid #1a1a1a; padding-top:1.5rem;
+    flex-wrap:wrap; gap:1rem;
+  }
+  .footer-bottom p { font-size:.8rem; color:#444; }
+  .footer-socials { display:flex; gap:.8rem; }
+  .social-btn {
+    width:36px; height:36px; border-radius:3px;
+    background:#1a1a1a; border:1px solid #2a2a2a;
+    display:flex; align-items:center; justify-content:center;
+    color:#666; text-decoration:none; font-size:1rem;
+    transition:.2s;
+  }
+  .social-btn:hover { background:var(--red); color:var(--white); border-color:var(--red); }
+
+  /* ---- LIGHTBOX ---- */
+  .lightbox {
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,0.95);
+    align-items:center; justify-content:center;
+  }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:90vw; max-height:90vh; border-radius:4px; }
+  .lightbox-close {
+    position:absolute; top:20px; right:24px;
+    font-size:2rem; color:#fff; cursor:pointer;
+    background:none; border:none; line-height:1;
+  }
+
+  /* ---- SCROLL REVEAL ---- */
+  .reveal { opacity:0; transform:translateY(30px); transition:.7s; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  /* ---- MOBILE ---- */
+  @media (max-width:768px) {
+    nav { padding:0 4%; }
+    .nav-links { display:none; }
+    .hamburger { display:flex; }
+
+    section { padding:60px 4%; }
+    .hero-content { padding:100px 4% 60px; }
+    .hero-stats { display:grid; grid-template-columns:repeat(2,1fr); }
+    .hero-stats .stat-item:nth-child(2) { border-right:none; }
+
+    .about-grid,
+    .book-grid,
+    .contact-grid { grid-template-columns:1fr; gap:2.5rem; }
+    .about-img-badge { right:0; bottom:-15px; }
+
+    .gallery-grid { columns:2; }
+    .footer-grid { grid-template-columns:1fr; gap:2rem; }
+    .form-row { grid-template-columns:1fr; }
+    .booking-form { padding:1.8rem 1.4rem; }
+
+    .trainers-grid { grid-template-columns:repeat(2,1fr); }
+    .plans-grid { grid-template-columns:1fr; }
+
+    .hours-strip { gap:1rem; }
+    .hours-divider { display:none; }
+  }
+  @media (max-width:480px) {
+    .gallery-grid { columns:1; }
+    .trainers-grid { grid-template-columns:1fr 1fr; }
+    .about-features { grid-template-columns:1fr; }
+    .hero-btns { flex-direction:column; }
+    .btn-primary, .btn-outline { text-align:center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-logo">FIT<span>POINT</span></a>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#facilities">Facilities</a></li>
+    <li><a href="#membership">Plans</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#schedule">Schedule</a></li>
+    <li><a href="#book" class="nav-cta">Book Now</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#home" onclick="closeMenu()">Home</a>
+  <a href="#about" onclick="closeMenu()">About</a>
+  <a href="#facilities" onclick="closeMenu()">Facilities</a>
+  <a href="#membership" onclick="closeMenu()">Membership Plans</a>
+  <a href="#trainers" onclick="closeMenu()">Trainers</a>
+  <a href="#gallery" onclick="closeMenu()">Gallery</a>
+  <a href="#schedule" onclick="closeMenu()">Class Schedule</a>
+  <a href="#book" onclick="closeMenu()">Book a Trial</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-content reveal">
+    <span class="hero-tag">📍 Harirampur, Dakshin Dinajpur</span>
+    <h1 class="hero-title">FORGE<br>YOUR<br><span class="accent">BEST</span><br>SELF</h1>
+    <p class="hero-sub">North Bengal's most advanced fitness destination. State-of-the-art equipment, expert trainers, and a community that pushes you beyond your limits.</p>
+    <div class="hero-btns">
+      <a href="#book" class="btn-primary">Start Free Trial</a>
+      <a href="#about" class="btn-outline">Explore FitPoint</a>
+    </div>
+  </div>
+  <div class="hero-stats reveal">
+    <div class="stat-item">
+      <span class="stat-num">500+</span>
+      <span class="stat-label">Active Members</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">12+</span>
+      <span class="stat-label">Expert Trainers</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">8000</span>
+      <span class="stat-label">Sq Ft Facility</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">20+</span>
+      <span class="stat-label">Classes/Week</span>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-img-wrap reveal">
+      <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=800&q=80" alt="FitPoint Gym Interior">
+      <div class="about-img-badge">
+        <strong>Est.</strong>
+        2018
+      </div>
+    </div>
+    <div class="reveal">
+      <span class="section-tag">Who We Are</span>
+      <h2 class="section-title">MORE THAN A GYM. A COMMUNITY.</h2>
+      <p class="section-sub">FitPoint was founded with one belief: every person in Dakshin Dinajpur deserves access to world-class fitness. We brought that belief to life right here in Harirampur.</p>
+      <p style="color:#aaa; font-size:.95rem; line-height:1.8; margin-bottom:1.5rem;">
+        From our 8,000 sq ft air-conditioned facility to internationally certified coaches, FitPoint offers everything you need — whether you're a first-timer wanting to lose weight, an athlete training for competition, or a senior looking to stay active and healthy.
+      </p>
+      <p style="color:#aaa; font-size:.95rem; line-height:1.8; margin-bottom:2rem;">
+        We're proud to be the region's first gym with a dedicated women's-only zone, a certified nutrition counselor on staff, and 24/7 CCTV-monitored premises for your complete safety.
+      </p>
+      <div class="about-features">
+        <div class="about-feat">
+          <div class="feat-icon">🏋️</div>
+          <div class="feat-text">
+            <strong>Premium Equipment</strong>
+            <span>Life Fitness & Hammer Strength machines</span>
+          </div>
+        </div>
+        <div class="about-feat">
+          <div class="feat-icon">👩</div>
+          <div class="feat-text">
+            <strong>Women's Zone</strong>
+            <span>Private, dedicated space for women</span>
+          </div>
+        </div>
+        <div class="about-feat">
+          <div class="feat-icon">🥗</div>
+          <div class="feat-text">
+            <strong>Nutrition Desk</strong>
+            <span>Certified dietitian consultations</span>
+          </div>
+        </div>
+        <div class="about-feat">
+          <div class="feat-icon">🛡️</div>
+          <div class="feat-text">
+            <strong>Safe & Clean</strong>
+            <span>24/7 security, daily sanitization</span>
+          </div>
+        </div>
+        <div class="about-feat">
+          <div class="feat-icon">❄️</div>
+          <div class="feat-text">
+            <strong>Fully AC</strong>
+            <span>Climate-controlled environment</span>
+          </div>
+        </div>
+        <div class="about-feat">
+          <div class="feat-icon">🚿</div>
+          <div class="feat-text">
+            <strong>Locker Rooms</strong>
+            <span>Separate male & female with showers</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FACILITIES -->
+<section id="facilities">
+  <div class="reveal">
+    <span class="section-tag">What We Offer</span>
+    <h2 class="section-title">WORLD-CLASS FACILITIES</h2>
+    <p class="section-sub">Everything you need under one roof — engineered for performance, designed for results.</p>
+  </div>
+  <div class="facilities-grid reveal">
+    <div class="facility-card">
+      <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80" alt="Weight Training Floor">
+      <div class="facility-body">
+        <h3>Strength Training Floor</h3>
+        <p>Over 60 free-weight stations, power racks, Smith machines, and cable systems. Our strength floor rivals facilities in major metros.</p>
+      </div>
+    </div>
+    <div class="facility-card">
+      <img src="https://images.unsplash.com/photo-1571731956672-f2b94d7dd0cb?w=600&q=80" alt="Cardio Zone">
+      <div class="facility-body">
+        <h3>Cardio Zone</h3>
+        <p>30+ treadmills, ellipticals, rowing machines, assault bikes, and steppers — all with personal TV screens and USB charging.</p>
+      </div>
+    </div>
+    <div class="facility-card">
+      <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&q=80" alt="Group Class Studio">
+      <div class="facility-body">
+        <h3>Group Class Studio</h3>
+        <p>Sprung wooden floor, mirrored walls, professional sound system. Hosts yoga, Zumba, HIIT, Pilates, and boxing classes daily.</p>
+      </div>
+    </div>
+    <div class="facility-card">
+      <img src="https://images.unsplash.com/photo-1576678927484-cc907957088c?w=600&q=80" alt="Functional Training">
+      <div class="facility-body">
+        <h3>Functional Training Area</h3>
+        <p>Turf track, suspension trainers, kettlebells, battle ropes, plyometric boxes, and sleds for next-level athletic conditioning.</p>
+      </div>
+    </div>
+    <div class="facility-card">
+      <img src="https://images.unsplash.com/photo-1607962837359-5e7e89f86776?w=600&q=80" alt="Yoga Room">
+      <div class="facility-body">
+        <h3>Yoga & Meditation Room</h3>
+        <p>Serene, soundproofed space for yoga, stretching, and mindfulness. Aromatherapy diffusers and natural lighting for total calm.</p>
+      </div>
+    </div>
+    <div class="facility-card">
+      <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80" alt="Women Only Zone">
+      <div class="facility-body">
+        <h3>Women's Exclusive Zone</h3>
+        <p>A fully private, fully equipped workout area for women — with dedicated trainer support in a comfortable, judgment-free space.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MEMBERSHIP -->
+<section id="membership">
+  <div class="reveal">
+    <span class="section-tag">Choose Your Plan</span>
+    <h2 class="section-title">MEMBERSHIP PLANS</h2>
+    <p class="section-sub">Flexible options to fit every goal and budget. No hidden charges — what you see is what you pay.</p>
+  </div>
+  <div class="plans-grid reveal">
+    <div class="plan-card">
+      <div class="plan-name">Basic</div>
+      <div class="plan-price"><sup>₹</sup>799<sub>/month</sub></div>
+      <div class="plan-sub">Perfect to get started</div>
+      <ul>
+        <li>Gym floor access (6 AM – 10 PM)</li>
+        <li>Locker room use</li>
+        <li>1 fitness assessment</li>
+        <li>Free Wi-Fi</li>
+        <li>Drinking water station</li>
+      </ul>
+      <a href="#book" class="btn-plan">Get Started</a>
+    </div>
+    <div class="plan-card featured">
+      <div class="plan-badge">Most Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price"><sup>₹</sup>1,299<sub>/month</sub></div>
+      <div class="plan-sub">Best value for serious lifters</div>
+      <ul>
+        <li>All Basic features</li>
+        <li>Unlimited group classes</li>
+        <li>Personal trainer (4 sessions)</li>
+        <li>Nutrition consultation</li>
+        <li>Body composition analysis</li>
+        <li>Guest pass (1/month)</li>
+      </ul>
+      <a href="#book" class="btn-plan">Get Started</a>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Elite</div>
+      <div class="plan-price"><sup>₹</sup>1,999<sub>/month</sub></div>
+      <div class="plan-sub">The complete experience</div>
+      <ul>
+        <li>All Pro features</li>
+        <li>Unlimited PT sessions</li>
+        <li>Monthly diet plan</li>
+        <li>Priority booking</li>
+        <li>Towel & locker service</li>
+        <li>Guest passes (4/month)</li>
+        <li>Supplement discounts 15%</li>
+      </ul>
+      <a href="#book" class="btn-plan">Get Started</a>
+    </div>
+  </div>
+  <p style="text-align:center;color:#555;font-size:.82rem;margin-top:2rem;">Annual membership available at 2 months free. Student & senior citizen discounts apply. All prices incl. GST.</p>
+</section>
+
+<!-- TRAINERS -->
+<section id="trainers">
+  <div class="reveal">
+    <span class="section-tag">Expert Coaches</span>
+    <h2 class="section-title">MEET YOUR TRAINERS</h2>
+    <p class="section-sub">Certified, experienced, and deeply passionate — our coaches are here to guide every step of your journey.</p>
+  </div>
+  <div class="trainers-grid reveal">
+    <div class="trainer-card">
+      <img src="https://images.unsplash.com/photo-1567013127542-490d757e51cd?w=400&q=80" alt="Trainer Rahul">
+      <div class="trainer-body">
+        <h3>Rahul Sharma</h3>
+        <div class="trainer-spec">Head Coach · Strength</div>
+        <p>12 years experience. NSCA-CSCS certified. Former state-level powerlifter. Specializes in hypertrophy, strength programming, and sports performance.</p>
+      </div>
+    </div>
+    <div class="trainer-card">
+      <img src="https://images.unsplash.com/photo-1594381898411-846e7d193883?w=400&q=80" alt="Trainer Priya">
+      <div class="trainer-body">
+        <h3>Priya Dey</h3>
+        <div class="trainer-spec">Women's Specialist · Yoga</div>
+        <p>8 years experience. RYT-500 Yoga Alliance certified. Expert in women's fitness, postpartum recovery, weight loss, and mindful movement.</p>
+      </div>
+    </div>
+    <div class="trainer-card">
+      <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&q=80" alt="Trainer Arjun">
+      <div class="trainer-body">
+        <h3>Arjun Biswas</h3>
+        <div class="trainer-spec">Cardio & HIIT Coach</div>
+        <p>7 years experience. ACSM certified. Expert in metabolic conditioning, HIIT design, marathon training, and VO2 max improvement.</p>
+      </div>
+    </div>
+    <div class="trainer-card">
+      <img src="https://images.unsplash.com/photo-1609899537878-3ab57bff74b6?w=400&q=80" alt="Trainer Meena">
+      <div class="trainer-body">
+        <h3>Meena Ghosh</h3>
+        <div class="trainer-spec">Nutrition & Zumba</div>
+        <p>Registered dietitian & licensed Zumba instructor. Crafts personalized meal plans and leads energetic dance fitness classes for all levels.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEDULE -->
+<section id="schedule">
+  <div class="reveal">
+    <span class="section-tag">Weekly Classes</span>
+    <h2 class="section-title">CLASS SCHEDULE</h2>
+    <p class="section-sub">Join a class, find your tribe. All group classes are included in Pro and Elite memberships.</p>
+  </div>
+  <div class="schedule-table-wrap reveal">
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th>Class</th>
+          <th>Type</th>
+          <th>Trainer</th>
+          <th>Days</th>
+          <th>Time</th>
+          <th>Duration</th>
+          <th>Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Morning HIIT Blast</strong></td>
+          <td><span class="class-badge badge-hiit">HIIT</span></td>
+          <td>Arjun Biswas</td>
+          <td>Mon / Wed / Fri</td>
+          <td>6:00 AM</td>
+          <td>45 min</td>
+          <td>All levels</td>
+        </tr>
+        <tr>
+          <td><strong>Power Yoga</strong></td>
+          <td><span class="class-badge badge-yoga">Yoga</span></td>
+          <td>Priya Dey</td>
+          <td>Tue / Thu / Sat</td>
+          <td>7:00 AM</td>
+          <td>60 min</td>
+          <td>Beginner+</td>
+        </tr>
+        <tr>
+          <td><strong>Strength Fundamentals</strong></td>
+          <td><span class="class-badge badge-strength">Strength</span></td>
+          <td>Rahul Sharma</td>
+          <td>Mon / Wed / Fri</td>
+          <td>8:00 AM</td>
+          <td>60 min</td>
+          <td>Beginner</td>
+        </tr>
+        <tr>
+          <td><strong>Zumba Fitness</strong></td>
+          <td><span class="class-badge badge-cardio">Cardio</span></td>
+          <td>Meena Ghosh</td>
+          <td>Tue / Thu / Sun</td>
+          <td>9:00 AM</td>
+          <td>50 min</td>
+          <td>All levels</td>
+        </tr>
+        <tr>
+          <td><strong>Boxing Bootcamp</strong></td>
+          <td><span class="class-badge badge-boxing">Boxing</span></td>
+          <td>Rahul Sharma</td>
+          <td>Tue / Sat</td>
+          <td>5:30 PM</td>
+          <td>60 min</td>
+          <td>Intermediate</td>
+        </tr>
+        <tr>
+          <td><strong>Evening Cardio Burn</strong></td>
+          <td><span class="class-badge badge-cardio">Cardio</span></td>
+          <td>Arjun Biswas</td>
+          <td>Mon–Fri</td>
+          <td>6:30 PM</td>
+          <td>45 min</td>
+          <td>All levels</td>
+        </tr>
+        <tr>
+          <td><strong>Advanced Lifting</strong></td>
+          <td><span class="class-badge badge-strength">Strength</span></td>
+          <td>Rahul Sharma</td>
+          <td>Mon / Wed / Fri</td>
+          <td>7:30 PM</td>
+          <td>75 min</td>
+          <td>Advanced</td>
+        </tr>
+        <tr>
+          <td><strong>Weekend Women's HIIT</strong></td>
+          <td><span class="class-badge badge-hiit">HIIT</span></td>
+          <td>Priya Dey</td>
+          <td>Sat / Sun</td>
+          <td>8:00 AM</td>
+          <td>45 min</td>
+          <td>Women only</td>
+        </tr>
+        <tr>
+          <td><strong>Meditation & Stretch</strong></td>
+          <td><span class="class-badge badge-yoga">Yoga</span></td>
+          <td>Priya Dey</td>
+          <td>Daily</td>
+          <td>8:00 PM</td>
+          <td>30 min</td>
+          <td>All levels</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="reveal">
+    <span class="section-tag">Inside FitPoint</span>
+    <h2 class="section-title">GALLERY</h2>
+    <p class="section-sub">A glimpse of our facility, our people, and the energy that makes FitPoint special.</p>
+  </div>
+  <div class="gallery-grid reveal">
+    <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&q=80" alt="Gym floor" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=500&q=80" alt="Workout" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=500&q=80" alt="Training" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=500&q=80" alt="HIIT class" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=500&q=80" alt="Yoga" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1576678927484-cc907957088c?w=500&q=80" alt="Functional" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1567013127542-490d757e51cd?w=500&q=80" alt="Coach" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1596357395217-80de13130e92?w=500&q=80" alt="Weights" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1554284126-aa88f22d8b74?w=500&q=80" alt="Barbell" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=500&q=80" alt="Athlete" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=500&q=80" alt="Gym life" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1607962837359-5e7e89f86776?w=500&q=80" alt="Yoga room" onclick="openLightbox(this.src)">
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="reveal">
+    <span class="section-tag">Real Results</span>
+    <h2 class="section-title">WHAT MEMBERS SAY</h2>
+    <p class="section-sub">Over 500 people trust FitPoint with their fitness. Here's what some of them have to say.</p>
+  </div>
+  <div class="testi-grid reveal">
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"I lost 18 kg in 6 months at FitPoint. The trainers are incredibly knowledgeable and the facility is genuinely world-class for our region. Best investment I've made for my health."</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80" alt="Sourav">
+        <div>
+          <div class="testi-name">Sourav Mondal</div>
+          <div class="testi-since">Pro Member since 2021</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"As a woman, I was nervous about gyms. FitPoint's women's zone changed everything. Priya ma'am is phenomenal — I feel safe, supported, and genuinely love working out now."</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Riya">
+        <div>
+          <div class="testi-name">Riya Chakraborty</div>
+          <div class="testi-since">Elite Member since 2022</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"I've been to gyms in Kolkata and Delhi, and FitPoint genuinely holds its own. Equipment is top-notch, always clean, and the trainers actually care about your progress."</p>
+      <div class="testi-author">
+        <img class="testi-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Ankit">
+        <div>
+          <div class="testi-name">Ankit Saha</div>
+          <div class="testi-since">Pro Member since 2020</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOURS STRIP -->
+<div class="hours-strip reveal">
+  <div class="hour-block">
+    <div class="day">Mon – Fri</div>
+    <div class="time">5:30 AM – 10:30 PM</div>
+  </div>
+  <div class="hours-divider"></div>
+  <div class="hour-block">
+    <div class="day">Saturday</div>
+    <div class="time">6:00 AM – 9:00 PM</div>
+  </div>
+  <div class="hours-divider"></div>
+  <div class="hour-block">
+    <div class="day">Sunday</div>
+    <div class="time">7:00 AM – 6:00 PM</div>
+  </div>
+  <div class="hours-divider"></div>
+  <div class="hour-block">
+    <div class="day">Public Holidays</div>
+    <div class="time">8:00 AM – 4:00 PM</div>
+  </div>
+</div>
+
+<!-- BOOK -->
+<section id="book">
+  <div class="book-inner">
+    <div class="book-grid">
+      <div class="book-info reveal">
+        <span class="section-tag">Start Today</span>
+        <h2 class="section-title">BOOK YOUR FREE TRIAL</h2>
+        <p class="section-sub">No commitment. No credit card. Just show up and experience FitPoint for a full day — completely free.</p>
+        <div class="book-perks">
+          <div class="perk">
+            <div class="perk-icon">🎯</div>
+            <div>
+              <strong>Full Facility Access</strong>
+              <p>Use every zone — gym floor, cardio, group class, and more for your entire trial day.</p>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon">🧑‍💼</div>
+            <div>
+              <strong>Trainer Consultation</strong>
+              <p>Sit with a certified trainer for a 30-minute goal-setting and assessment session.</p>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon">🥗</div>
+            <div>
+              <strong>Nutrition Assessment</strong>
+              <p>Get a free basic nutrition evaluation and dietary recommendations.</p>
+            </div>
+          </div>
+          <div class="perk">
+            <div class="perk-icon">💬</div>
+            <div>
+              <strong>No Sales Pressure</strong>
+              <p>We'll tell you honestly what membership plan, if any, is right for your goals.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="booking-form">
+          <div id="formWrap">
+            <div class="form-title">Reserve Your Spot</div>
+            <!-- 
+              TO RECEIVE FORM SUBMISSIONS BY EMAIL:
+              1. Go to https://formspree.io and sign up for free
+              2. Create a new form and copy your endpoint URL
+              3. Replace "YOUR_FORMSPREE_ID" below with your actual form ID
+              Example: action="https://formspree.io/f/xpzgvkdo"
+            -->
+            <form id="bookingForm" action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fname">First Name *</label>
+                  <input type="text" id="fname" name="first_name" placeholder="Rahul" required>
+                </div>
+                <div class="form-group">
+                  <label for="lname">Last Name *</label>
+                  <input type="text" id="lname" name="last_name" placeholder="Sharma" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" placeholder="+91 98765 43210" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="you@email.com">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="date">Preferred Date *</label>
+                  <input type="date" id="date" name="preferred_date" required>
+                </div>
+                <div class="form-group">
+                  <label for="time">Preferred Time *</label>
+                  <select id="time" name="preferred_time" required>
+                    <option value="">Select time</option>
+                    <option>6:00 AM – 8:00 AM</option>
+                    <option>8:00 AM – 10:00 AM</option>
+                    <option>10:00 AM – 12:00 PM</option>
+                    <option>4:00 PM – 6:00 PM</option>
+                    <option>6:00 PM – 8:00 PM</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="goal">Primary Fitness Goal *</label>
+                <select id="goal" name="fitness_goal" required>
+                  <option value="">Select your goal</option>
+                  <option>Weight Loss / Fat Burning</option>
+                  <option>Muscle Building / Bulking</option>
+                  <option>General Fitness & Health</option>
+                  <option>Athletic Performance</option>
+                  <option>Yoga / Flexibility / Mindfulness</option>
+                  <option>Rehabilitation / Post-injury</option>
+                  <option>Senior Fitness / Staying Active</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="heard">How did you hear about us?</label>
+                <select id="heard" name="heard_from">
+                  <option value="">Select</option>
+                  <option>Friend / Family Referral</option>
+                  <option>Social Media (Instagram/Facebook)</option>
+                  <option>Google Search</option>
+                  <option>Word of Mouth</option>
+                  <option>Banner / Hoarding</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="msg">Anything specific you'd like to know?</label>
+                <textarea id="msg" name="message" placeholder="Any health conditions, questions, or special requests..."></textarea>
+              </div>
+              <input type="hidden" name="_subject" value="New FitPoint Trial Booking">
+              <input type="hidden" name="_replyto" value="fitpointgym@gmail.com">
+              <button type="submit" class="btn-submit">Book My Free Trial →</button>
+              <p style="text-align:center;font-size:.75rem;color:#555;margin-top:.8rem;">We'll confirm your slot via WhatsApp/call within 2 hours.</p>
+            </form>
+          </div>
+          <div class="form-success" id="formSuccess">
+            <div class="tick">✅</div>
+            <h3>YOU'RE BOOKED!</h3>
+            <p>Thanks! We've received your request and will confirm your slot via WhatsApp or call within 2 hours. See you at FitPoint!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-grid">
+    <div class="contact-info reveal">
+      <span class="section-tag">Find Us</span>
+      <h2 class="section-title">GET IN TOUCH</h2>
+      <p class="section-sub">We're here to help. Visit us, call us, or message us anytime.</p>
+      <div class="contact-items">
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <strong>Address</strong>
+            <p>FitPoint Gym, Harirampur<br>Dakshin Dinajpur, West Bengal – 733124<br>Near Main Road, Harirampur Town</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📞</div>
+          <div>
+            <strong>Phone & WhatsApp</strong>
+            <p>+91 98765 43210<br>+91 89012 34567<br>Mon – Sat: 6 AM – 10 PM</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">✉️</div>
+          <div>
+            <strong>Email</strong>
+            <p>fitpointgym@gmail.com<br>Replies within 24 hours</p>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📸</div>
+          <div>
+            <strong>Follow Us</strong>
+            <p>@fitpointgym on Instagram & Facebook<br>Daily workout tips, class updates & more</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="map-embed">
+        <div class="map-placeholder">
+          <div class="map-icon">🗺️</div>
+          <p style="margin-bottom:.5rem;color:#888;">FitPoint Gym – Harirampur, Dakshin Dinajpur</p>
+          <a href="https://www.google.com/maps/search/Harirampur+Dakshin+Dinajpur+West+Bengal" target="_blank" class="btn-primary" style="display:inline-block;margin-top:1rem;font-size:.85rem;">Open in Google Maps →</a>
+        </div>
+      </div>
+      <div style="margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;padding:1.2rem;text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:.4rem;">🅿️</div>
+          <strong style="font-size:.85rem;display:block;">Free Parking</strong>
+          <span style="font-size:.78rem;color:#666;">Ample space available</span>
+        </div>
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:4px;padding:1.2rem;text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:.4rem;">🚌</div>
+          <strong style="font-size:.85rem;display:block;">Public Transit</strong>
+          <span style="font-size:.78rem;color:#666;">Bus stop 200m away</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#home" class="logo">FIT<span>POINT</span></a>
+      <p>North Bengal's premier fitness destination. Committed to transforming lives through strength, discipline, and community — right here in Harirampur, Dakshin Dinajpur.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#facilities">Facilities</a></li>
+        <li><a href="#membership">Membership Plans</a></li>
+        <li><a href="#trainers">Our Trainers</a></li>
+        <li><a href="#schedule">Class Schedule</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#book">Book Trial</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#">Personal Training</a></li>
+        <li><a href="#">Group Classes</a></li>
+        <li><a href="#">Nutrition Counseling</a></li>
+        <li><a href="#">Body Composition</a></li>
+        <li><a href="#">Women's Fitness</a></li>
+        <li><a href="#">Yoga & Meditation</a></li>
+        <li><a href="#">Corporate Wellness</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 FitPoint Gym, Harirampur, Dakshin Dinajpur. All rights reserved.</p>
+    <div class="footer-socials">
+      <a href="#" class="social-btn" title="Instagram">📸</a>
+      <a href="#" class="social-btn" title="Facebook">📘</a>
+      <a href="#" class="social-btn" title="YouTube">▶️</a>
+      <a href="#" class="social-btn" title="WhatsApp">💬</a>
+    </div>
+  </div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="Gallery image">
+</div>
+
+<script>
+  // Hamburger menu
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+  function closeMenu() { mobileMenu.classList.remove('open'); }
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  reveals.forEach(r => observer.observe(r));
+
+  // Lightbox
+  function openLightbox(src) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // Set min date on booking form
+  const dateInput = document.getElementById('date');
+  if(dateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+  }
+
+  // Form submission handler (Formspree)
+  const bookingForm = document.getElementById('bookingForm');
+  if(bookingForm) {
+    bookingForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = bookingForm.querySelector('.btn-submit');
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
+      try {
+        const formData = new FormData(bookingForm);
+        const action = bookingForm.getAttribute('action');
+        // If Formspree not set up yet, show success anyway for demo
+        if(action.includes('YOUR_FORMSPREE_ID')) {
+          setTimeout(() => {
+            document.getElementById('formWrap').style.display = 'none';
+            document.getElementById('formSuccess').style.display = 'block';
+          }, 800);
+          return;
+        }
+        const response = await fetch(action, {
+          method: 'POST',
+          body: formData,
+          headers: { 'Accept': 'application/json' }
+        });
+        if(response.ok) {
+          document.getElementById('formWrap').style.display = 'none';
+          document.getElementById('formSuccess').style.display = 'block';
+        } else {
+          btn.textContent = 'Try Again';
+          btn.disabled = false;
+          alert('Something went wrong. Please call us directly: +91 98765 43210');
+        }
+      } catch(err) {
+        btn.textContent = 'Try Again';
+        btn.disabled = false;
+        alert('Network error. Please call us: +91 98765 43210');
+      }
+    });
+  }
+
+  // Active nav link highlight
+  window.addEventListener('scroll', () => {
+    const sections = document.querySelectorAll('section[id]');
+    let current = '';
+    sections.forEach(s => {
+      if(window.scrollY >= s.offsetTop - 100) current = s.id;
+    });
+    document.querySelectorAll('.nav-links a').forEach(a => {
+      a.style.color = a.getAttribute('href') === '#'+current ? 'var(--red)' : '';
+    });
+  });
+</script>
+</body>
+</html>
