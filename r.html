@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d0f12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RevisionOS">
+<link rel="manifest" id="manifest-link">
+<title>RevisionOS</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════ */
+:root{
+  --bg:#0b0d10; --s1:#13171e; --s2:#181e28; --s3:#1e2535;
+  --b1:#252f40; --b2:#303d54; --b3:#3d4f6a;
+  --text:#edf2fa; --muted:#6b7a94; --dim:#3d4f6a;
+  --accent:#4f9cf9; --purple:#a78bfa; --green:#34d399;
+  --amber:#fbbf24; --red:#f87171; --orange:#fb923c; --cyan:#22d3ee;
+  --mono:'Space Mono',monospace; --sans:'DM Sans',sans-serif;
+  --glow-a:rgba(79,156,249,0.18); --glow-p:rgba(167,139,250,0.15);
+  --glow-g:rgba(52,211,153,0.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--sans);
+  font-size:14px;min-height:100vh;line-height:1.5;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND ART ── */
+.bg-art{
+  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.bg-art canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0.5;}
+.bg-art::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 20% 20%,rgba(79,156,249,0.06) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 80% at 80% 80%,rgba(167,139,250,0.05) 0%,transparent 60%),
+             radial-gradient(ellipse 40% 40% at 50% 50%,rgba(52,211,153,0.03) 0%,transparent 70%);
+}
+
+/* ── LAYOUT WRAPPER ── */
+#app{position:relative;z-index:1;min-height:100vh;padding-bottom:100px;}
+
+/* ═══ TOP NAV ═══ */
+.topbar{
+  position:sticky;top:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 32px;
+  background:rgba(11,13,16,0.7);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(37,47,64,0.6);
+}
+.logo-mark{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,#4f9cf9 0%,#a78bfa 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;color:#fff;font-family:var(--mono);
+  box-shadow:0 0 20px rgba(79,156,249,0.35);
+  flex-shrink:0;
+}
+.logo-text{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:0.06em;color:var(--text)}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:0.04em;margin-top:-1px}
+
+.nav-pill{
+  background:rgba(19,23,30,0.8);border:1px solid var(--b1);
+  border-radius:999px;padding:4px;display:flex;gap:1px;
+  backdrop-filter:blur(12px);
+}
+.np{
+  background:none;border:none;color:var(--muted);
+  font-family:var(--sans);font-size:12px;font-weight:500;
+  padding:6px 15px;border-radius:999px;cursor:pointer;
+  transition:all 0.18s;white-space:nowrap;position:relative;
+}
+.np:hover{color:var(--text)}
+.np.active{background:var(--s3);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+.np .nbadge{
+  position:absolute;top:1px;right:4px;
+  background:var(--red);color:#fff;
+  font-size:8px;font-weight:700;width:14px;height:14px;
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);
+}
+
+.topbar-right{display:flex;align-items:center;gap:8px}
+.install-btn{
+  background:rgba(79,156,249,0.12);border:1px solid rgba(79,156,249,0.3);
+  color:var(--accent);font-size:11px;padding:5px 12px;border-radius:999px;
+  cursor:pointer;font-family:var(--sans);display:none;transition:all 0.15s;
+}
+.install-btn:hover{background:rgba(79,156,249,0.2)}
+.notif-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--red);
+  cursor:pointer;transition:background 0.2s;flex-shrink:0;
+}
+.notif-dot.on{background:var(--green);box-shadow:0 0 8px rgba(52,211,153,0.5)}
+
+/* ═══ MAIN ═══ */
+.main{max-width:1280px;margin:0 auto;padding:32px 32px 0;}
+
+/* ── VIEWS ── */
+.view{display:none;animation:fadeUp 0.22s ease both}
+.view.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── PAGE HEADER ── */
+.ph{margin-bottom:28px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ph-left h2{font-size:22px;font-weight:700;letter-spacing:-0.02em}
+.ph-left p{color:var(--muted);font-size:12px;margin-top:3px}
+
+/* ═══ GRADE SCORECARD ═══ */
+.scorecard{
+  border-radius:18px;padding:22px 26px;margin-bottom:26px;
+  display:flex;align-items:center;gap:20px;
+  border:1px solid var(--b1);
+  position:relative;overflow:hidden;
+  transition:all 0.3s;
+}
+.scorecard::before{
+  content:'';position:absolute;inset:0;opacity:0.07;
+  background:radial-gradient(ellipse at 0% 50%,currentColor 0%,transparent 70%);
+}
+.grade-badge{
+  font-family:var(--mono);font-size:48px;font-weight:700;
+  line-height:1;flex-shrink:0;min-width:64px;text-align:center;
+  text-shadow:0 0 30px currentColor;
+}
+.grade-info{flex:1}
+.grade-title{font-size:16px;font-weight:600;margin-bottom:3px}
+.grade-desc{font-size:12px;color:var(--muted);line-height:1.5}
+.grade-meta{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.gm-item{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.gm-item span{color:var(--text);font-weight:700}
+.grade-streak{
+  display:flex;flex-direction:column;align-items:center;
+  background:rgba(255,255,255,0.04);border:1px solid var(--b1);
+  border-radius:12px;padding:12px 18px;flex-shrink:0;
+}
+.streak-num{font-family:var(--mono);font-size:32px;font-weight:700;color:var(--amber);line-height:1;text-shadow:0 0 20px rgba(251,191,36,0.4)}
+.streak-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+
+/* grade colors */
+.grade-S{background:linear-gradient(135deg,rgba(52,211,153,0.12),rgba(52,211,153,0.04));color:var(--green);border-color:rgba(52,211,153,0.3)}
+.grade-A{background:linear-gradient(135deg,rgba(79,156,249,0.12),rgba(79,156,249,0.04));color:var(--accent);border-color:rgba(79,156,249,0.3)}
+.grade-B{background:linear-gradient(135deg,rgba(167,139,250,0.12),rgba(167,139,250,0.04));color:var(--purple);border-color:rgba(167,139,250,0.3)}
+.grade-C{background:linear-gradient(135deg,rgba(251,191,36,0.1),rgba(251,191,36,0.03));color:var(--amber);border-color:rgba(251,191,36,0.3)}
+.grade-D{background:linear-gradient(135deg,rgba(251,146,60,0.1),rgba(251,146,60,0.03));color:var(--orange);border-color:rgba(251,146,60,0.3)}
+.grade-F{background:linear-gradient(135deg,rgba(248,113,113,0.12),rgba(248,113,113,0.04));color:var(--red);border-color:rgba(248,113,113,0.3)}
+
+/* ═══ STATS GRID ═══ */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.sc{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:14px 18px;transition:border-color .2s}
+.sc:hover{border-color:var(--b2)}
+.sc .sl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sc .sv{font-family:var(--mono);font-size:28px;font-weight:700}
+.sv.ca{color:var(--accent)}.sv.cg{color:var(--green)}.sv.cr{color:var(--red)}.sv.cam{color:var(--amber)}
+
+/* ═══ TABLE STYLE (universal format) ═══ */
+.uni-table{width:100%;border-collapse:collapse;background:var(--s1);border:1px solid var(--b1);border-radius:14px;overflow:hidden}
+.uni-table th{
+  text-align:left;font-size:10px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);
+  padding:11px 14px;border-bottom:1px solid var(--b1);
+  background:rgba(24,30,40,0.8);
+}
+.uni-table td{padding:10px 14px;border-bottom:1px solid rgba(37,47,64,0.5);font-size:13px;vertical-align:middle}
+.uni-table tr:last-child td{border-bottom:none}
+.uni-table tr:hover td{background:rgba(255,255,255,0.02)}
+.uni-table tr.today-row td{background:rgba(79,156,249,0.04)}
+.uni-table tr.missed-row td{background:rgba(248,113,113,0.03)}
+.table-wrap{border-radius:14px;overflow:hidden;margin-bottom:16px}
+
+/* ── section header ── */
+.sec{
+  font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:22px 0 10px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec::after{content:'';flex:1;height:1px;background:var(--b1)}
+
+/* ── STATUS CHIPS ── */
+.dp{font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:6px;display:inline-block;white-space:nowrap}
+.dp.past{background:rgba(255,255,255,.05);color:var(--muted)}
+.dp.today{background:rgba(79,156,249,.15);color:var(--accent);font-weight:700}
+.dp.future{background:rgba(52,211,153,.08);color:var(--green)}
+
+.st-chip{font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;display:inline-block;white-space:nowrap}
+.st-done{background:rgba(52,211,153,.12);color:var(--green)}
+.st-today{background:rgba(79,156,249,.15);color:var(--accent)}
+.st-missed{background:rgba(248,113,113,.12);color:var(--red)}
+.st-upcoming{background:rgba(255,255,255,.05);color:var(--muted)}
+
+/* ── REV NUMBER PILL ── */
+.rev-pill{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:999px;display:inline-block;
+  background:rgba(79,156,249,0.18);color:var(--accent);
+  border:1px solid rgba(79,156,249,0.3);letter-spacing:.02em;
+}
+
+/* ── TYPE BADGE ── */
+.tb{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:999px;white-space:nowrap;display:inline-block}
+.tb.fast{background:rgba(167,139,250,.15);color:var(--purple);border:1px solid rgba(167,139,250,.25)}
+.tb.medium{background:rgba(79,156,249,.12);color:var(--accent);border:1px solid rgba(79,156,249,.2)}
+.tb.slow{background:rgba(52,211,153,.1);color:var(--green);border:1px solid rgba(52,211,153,.2)}
+
+/* ── INLINE ACTIONS ── */
+.ia{
+  background:none;border:1px solid var(--b1);color:var(--muted);
+  font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;
+  font-family:var(--sans);transition:all .15s;white-space:nowrap;
+}
+.ia:hover{border-color:var(--b2);color:var(--text)}
+.ia.done-btn{border-color:rgba(52,211,153,.3);color:var(--green);background:rgba(52,211,153,.06)}
+.ia.done-btn:hover{background:rgba(52,211,153,.15)}
+.ia.undone-btn{border-color:rgba(248,113,113,.3);color:var(--red);background:rgba(248,113,113,.06)}
+.ia.undone-btn:hover{background:rgba(248,113,113,.15)}
+.ia.danger:hover{border-color:rgba(248,113,113,.5);color:var(--red)}
+
+/* ── PROGRESS BAR ── */
+.prog-bar{height:4px;background:var(--b1);border-radius:999px;overflow:hidden;margin-top:5px}
+.prog-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--purple));transition:width .4s ease}
+
+/* ═══ TASK EXPAND CARDS ═══ */
+.task-expand{background:var(--s1);border:1px solid var(--b1);border-radius:14px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.task-expand:hover{border-color:var(--b2)}
+.te-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;-webkit-user-select:none}
+.te-arrow{color:var(--muted);font-size:11px;transition:transform .2s;flex-shrink:0;width:16px}
+.te-arrow.open{transform:rotate(90deg)}
+.te-body{display:none;border-top:1px solid var(--b1)}
+.te-body.open{display:block}
+.te-task-name{font-weight:600;font-size:14px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.te-meta{font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
+
+/* ═══ HEATMAP ═══ */
+.heatmap-wrap{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:18px 20px;margin-bottom:24px;overflow-x:auto}
+.heatmap-title{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.hm-grid{display:flex;gap:3px}
+.hm-col{display:flex;flex-direction:column;gap:3px}
+.hm-cell{
+  width:11px;height:11px;border-radius:2px;background:var(--b1);
+  cursor:pointer;transition:transform .1s;position:relative;
+}
+.hm-cell:hover{transform:scale(1.3);z-index:10}
+.hm-cell[data-v="0"]{background:var(--b1)}
+.hm-cell[data-v="1"]{background:rgba(79,156,249,0.3)}
+.hm-cell[data-v="2"]{background:rgba(79,156,249,0.55)}
+.hm-cell[data-v="3"]{background:rgba(79,156,249,0.8)}
+.hm-cell[data-v="4"]{background:#4f9cf9}
+.hm-month-labels{display:flex;gap:3px;margin-bottom:4px;padding-left:18px}
+.hm-ml{font-family:var(--mono);font-size:9px;color:var(--muted)}
+.hm-day-labels{display:flex;flex-direction:column;gap:3px;margin-right:4px}
+.hm-dl{font-family:var(--mono);font-size:9px;color:var(--muted);height:11px;display:flex;align-items:center}
+.hm-legend{display:flex;align-items:center;gap:6px;margin-top:10px;justify-content:flex-end}
+.hm-leg-cell{width:9px;height:9px;border-radius:2px}
+.hm-leg-label{font-family:var(--mono);font-size:9px;color:var(--muted)}
+
+/* ── TOOLTIP ── */
+.tooltip{
+  position:fixed;background:var(--s3);border:1px solid var(--b2);
+  color:var(--text);font-size:11px;padding:6px 10px;border-radius:8px;
+  pointer-events:none;z-index:999;opacity:0;transition:opacity .15s;
+  font-family:var(--mono);white-space:nowrap;
+}
+
+/* ═══ ADD FORM ═══ */
+.form-card{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:24px}
+.fl{margin-bottom:16px}
+.fl label{display:block;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fi,.fsel{width:100%;background:var(--bg);border:1px solid var(--b1);color:var(--text);border-radius:10px;padding:10px 14px;font-family:var(--sans);font-size:14px;transition:border-color .15s;-webkit-appearance:none;appearance:none}
+.fi:focus,.fsel:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,156,249,0.12)}
+.fsel option{background:#181e28}
+.frow{display:flex;gap:12px}
+.frow .fl{flex:1}
+
+/* ── TOGGLE SWITCH for add mode ── */
+.mode-switch{display:flex;background:var(--s2);border:1px solid var(--b1);border-radius:999px;padding:3px;gap:2px;width:fit-content;margin-bottom:18px}
+.msw{background:none;border:none;color:var(--muted);font-size:12px;font-weight:500;padding:7px 18px;border-radius:999px;cursor:pointer;transition:all .18s;font-family:var(--sans)}
+.msw.active{background:var(--s3);color:var(--text)}
+
+/* ── PACE CARDS ── */
+.pace-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0 10px}
+.pace-card{background:var(--s2);border:2px solid var(--b1);border-radius:12px;padding:14px;cursor:pointer;transition:all .18s}
+.pace-card:hover{border-color:var(--b2)}
+.pace-card.sel{border-color:var(--accent);background:rgba(79,156,249,.07)}
+.picon{font-size:18px;margin-bottom:5px}
+.pname{font-size:12px;font-weight:600;margin-bottom:2px}
+.pdesc{font-size:11px;color:var(--muted);line-height:1.4}
+.pdays{font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:5px}
+
+.exam-preview{background:var(--bg);border:1px solid var(--b1);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--muted);margin-top:6px;font-family:var(--mono)}
+.exam-preview .ep-good{color:var(--green)}
+.exam-preview .ep-warn{color:var(--amber)}
+
+/* ── BUTTONS ── */
+.btn{padding:9px 20px;border-radius:10px;border:none;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-p{background:linear-gradient(135deg,#4f9cf9,#7c5ff7);color:#fff;box-shadow:0 4px 15px rgba(79,156,249,0.25)}
+.btn-p:hover{box-shadow:0 6px 20px rgba(79,156,249,0.35);transform:translateY(-1px)}
+.btn-g{background:none;border:1px solid var(--b1);color:var(--muted)}.btn-g:hover{border-color:var(--b2);color:var(--text)}
+.btn-d{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red)}.btn-d:hover{background:rgba(248,113,113,.2)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
+/* ═══ COMPLETED TAB ═══ */
+.comp-group{background:var(--s1);border:1px solid var(--b1);border-radius:14px;overflow:hidden;margin-bottom:10px}
+.comp-group-header{
+  padding:12px 16px;display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--b1);background:rgba(24,30,40,0.6);
+}
+.cgh-name{font-weight:600;font-size:14px;flex:1}
+.cgh-count{font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+/* ═══ SCHEDULE TAB ═══ */
+.view-switch{display:flex;background:var(--s2);border:1px solid var(--b1);border-radius:999px;padding:3px;gap:2px;width:fit-content;margin-bottom:20px}
+.vs-btn{background:none;border:none;color:var(--muted);font-size:12px;font-weight:500;padding:6px 16px;border-radius:999px;cursor:pointer;transition:all .18s;font-family:var(--sans)}
+.vs-btn.active{background:var(--s3);color:var(--text)}
+
+/* ═══ SETTINGS ═══ */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.scard{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:18px}
+.scard.full{grid-column:span 2}
+.scard h3{font-size:13px;font-weight:600;margin-bottom:12px}
+.time-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.tc{padding:5px 12px;border-radius:999px;border:1px solid var(--b1);background:none;color:var(--muted);font-size:11px;font-family:var(--mono);cursor:pointer;transition:all .15s}
+.tc.on{background:rgba(79,156,249,.12);border-color:var(--accent);color:var(--accent)}
+.trow2{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--b1)}
+.trow2:last-child{border-bottom:none}
+.tog{width:36px;height:20px;border-radius:999px;background:var(--b2);cursor:pointer;position:relative;transition:background .2s;border:none;flex-shrink:0}
+.tog::after{content:'';width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform .2s}
+.tog.on{background:var(--green)}.tog.on::after{transform:translateX(16px)}
+.ns{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin-top:10px}
+.nsdot{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0}
+.nsdot.on{background:var(--green);box-shadow:0 0 6px rgba(52,211,153,.5)}
+
+/* ═══ MODAL ═══ */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.modal{background:var(--s2);border:1px solid var(--b2);border-radius:18px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:26px;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:18px}
+.modal-footer{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+
+/* ═══ TOAST ═══ */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--s3);border:1px solid var(--b2);color:var(--text);padding:10px 20px;border-radius:999px;font-size:13px;opacity:0;transition:all .25s;pointer-events:none;z-index:999;white-space:nowrap;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:52px 20px;color:var(--muted);font-family:var(--mono);font-size:12px}
+.empty .big{font-size:36px;margin-bottom:10px;opacity:.3}
+
+/* ── MISC ── */
+hr{border:none;border-top:1px solid var(--b1);margin:14px 0}
+.hidden{display:none!important}
+.mono{font-family:var(--mono)}
+
+@media(max-width:900px){
+  .topbar{padding:10px 16px}
+  .main{padding:20px 16px 0}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .pace-grid{grid-template-columns:1fr}
+  .sg{grid-template-columns:1fr}.scard.full{grid-column:span 1}
+  .frow{flex-direction:column;gap:0}
+  .np{padding:6px 10px;font-size:11px}
+  .scorecard{flex-wrap:wrap}
+}
+@media(max-width:560px){
+  .logo-sub{display:none}
+  .hm-cell{width:9px;height:9px}
+}
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND ART -->
+<div class="bg-art"><canvas id="bg-canvas"></canvas></div>
+
+<div id="app">
+<!-- ═══ TOP BAR ═══ -->
+<div class="topbar">
+  <a class="logo-mark" href="#" onclick="return false">
+    <div class="logo-icon">R</div>
+    <div><div class="logo-text">REVISION_OS</div><div class="logo-sub">spaced repetition scheduler</div></div>
+  </a>
+  <div class="nav-pill">
+    <button class="np active" onclick="nav('today')" id="nb-today">Today<span class="nbadge hidden" id="badge-today">0</span></button>
+    <button class="np" onclick="nav('tasks')" id="nb-tasks">Tasks</button>
+    <button class="np" onclick="nav('schedule')" id="nb-schedule">Schedule</button>
+    <button class="np" onclick="nav('add')" id="nb-add">+ Add</button>
+    <button class="np" onclick="nav('completed')" id="nb-completed">Done</button>
+    <button class="np" onclick="nav('settings')" id="nb-settings">⚙</button>
+  </div>
+  <div class="topbar-right">
+    <button class="install-btn" id="install-btn" onclick="installPWA()">⬇ Install App</button>
+    <div class="notif-dot" id="notif-dot" onclick="nav('settings')" title="Notification status"></div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ═══ TODAY ═══ -->
+<div class="view active" id="view-today">
+  <div class="ph"><div class="ph-left"><h2>Today</h2><p id="today-label"></p></div></div>
+  <div id="scorecard-wrap"></div>
+  <div class="stats">
+    <div class="sc"><div class="sl">Due Today</div><div class="sv ca" id="st-due">0</div></div>
+    <div class="sc"><div class="sl">Completed</div><div class="sv cg" id="st-done">0</div></div>
+    <div class="sc"><div class="sl">Missed</div><div class="sv cr" id="st-miss">0</div></div>
+    <div class="sc"><div class="sl">Total Tasks</div><div class="sv" id="st-total">0</div></div>
+  </div>
+  <div id="heatmap-wrap-today"></div>
+  <div id="today-content"></div>
+</div>
+
+<!-- ═══ TASKS ═══ -->
+<div class="view" id="view-tasks">
+  <div class="ph"><div class="ph-left"><h2>Tasks</h2><p id="tasks-count-label"></p></div>
+    <button class="btn btn-p" onclick="nav('add')" style="font-size:13px;padding:8px 16px">+ Add Task</button>
+  </div>
+  <div id="tasks-list"></div>
+</div>
+
+<!-- ═══ SCHEDULE ═══ -->
+<div class="view" id="view-schedule">
+  <div class="ph"><div class="ph-left"><h2>Schedule</h2><p>All revision dates across tasks</p></div></div>
+  <div id="schedule-content"></div>
+</div>
+
+<!-- ═══ ADD ═══ -->
+<div class="view" id="view-add">
+  <div class="ph"><div class="ph-left"><h2>Add Task</h2><p>Track completion & auto-schedule revisions</p></div></div>
+  <div class="form-card" style="max-width:600px">
+    <div class="fl">
+      <label>Task / Chapter Name</label>
+      <input class="fi" type="text" id="in-name" placeholder="e.g. Chapter 5 — Thermodynamics">
+    </div>
+    <div class="frow">
+      <div class="fl">
+        <label>Completed On</label>
+        <input class="fi" type="date" id="in-date">
+      </div>
+      <div class="fl">
+        <label>Pace</label>
+        <select class="fsel" id="in-pace" onchange="onPaceChange()">
+          <option value="fast">⚡ Intense (n²)</option>
+          <option value="medium" selected>🎯 Balanced</option>
+          <option value="slow">🌿 Relaxed</option>
+        </select>
+      </div>
+    </div>
+    <!-- Mode switch -->
+    <div class="fl">
+      <label>Revision Count Mode</label>
+      <div class="mode-switch">
+        <button class="msw active" id="msw-exam" onclick="setAddMode('exam')">Auto from Exam Date</button>
+        <button class="msw" id="msw-manual" onclick="setAddMode('manual')">Manual Count</button>
+      </div>
+      <div id="mode-exam-block">
+        <input class="fi" type="date" id="in-exam" placeholder="Exam date">
+        <div class="exam-preview" id="exam-preview">Select exam date to see revision count</div>
+      </div>
+      <div id="mode-manual-block" class="hidden">
+        <input class="fi" type="number" id="in-n" value="6" min="1" max="20" placeholder="Number of revisions">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-p" onclick="addTask()">Add Task</button>
+      <button class="btn btn-g" onclick="nav('today')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COMPLETED ═══ -->
+<div class="view" id="view-completed">
+  <div class="ph"><div class="ph-left"><h2>Completed Revisions</h2><p id="comp-label"></p></div></div>
+  <div id="comp-list"></div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div class="view" id="view-settings">
+  <div class="ph"><div class="ph-left"><h2>Settings</h2></div></div>
+  <div class="sg">
+    <div class="scard full">
+      <h3>🔔 Notifications</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:6px">Select times below, then click Enable. If blocked, open browser Site Settings → allow Notifications for this page.</p>
+      <div class="time-chips" id="time-chips"></div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-p" id="notif-btn" onclick="enableNotif()">Enable Notifications</button>
+        <button class="btn btn-g" onclick="testNotif()">Send Test</button>
+        <button class="btn btn-g" onclick="rescheduleNotifs()">Re-schedule</button>
+      </div>
+      <div class="ns"><div class="nsdot" id="ns-dot"></div><span id="ns-text">Not enabled</span></div>
+      <div style="font-size:11px;color:var(--dim);margin-top:6px;line-height:1.5">
+        ⚠ Notifications only fire while this tab is open. For persistent alarms, save as PWA (Install App button).
+      </div>
+    </div>
+    <div class="scard">
+      <h3>Preferences</h3>
+      <div class="trow2">
+        <div><div style="font-size:13px">Show missed tasks</div><div style="font-size:11px;color:var(--muted)">Highlight overdue on Today</div></div>
+        <button class="tog on" id="tog-missed" onclick="togSet('showMissed','tog-missed')"></button>
+      </div>
+      <div class="trow2">
+        <div><div style="font-size:13px">Night check-in (9 PM)</div><div style="font-size:11px;color:var(--muted)">Remind if undone tasks remain</div></div>
+        <button class="tog on" id="tog-night" onclick="togSet('nightCheckin','tog-night')"></button>
+      </div>
+    </div>
+    <div class="scard">
+      <h3>Data</h3>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-g" onclick="exportD()" style="text-align:left">⬇ Export JSON</button>
+        <button class="btn btn-g" onclick="document.getElementById('imp-in').click()" style="text-align:left">⬆ Import JSON</button>
+        <input type="file" id="imp-in" accept=".json" class="hidden" onchange="importD(event)">
+        <hr>
+        <button class="btn btn-d" onclick="clearAll()" style="text-align:left">✕ Clear All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- EDIT MODAL -->
+<div class="modal-bg hidden" id="edit-modal">
+  <div class="modal">
+    <h3>Edit Task</h3>
+    <input type="hidden" id="em-id">
+    <div class="fl"><label>Name</label><input class="fi" type="text" id="em-name"></div>
+    <div class="frow">
+      <div class="fl"><label>Completed On</label><input class="fi" type="date" id="em-date"></div>
+      <div class="fl"><label>Exam Date</label><input class="fi" type="date" id="em-exam"></div>
+    </div>
+    <div class="fl"><label>Pace</label>
+      <select class="fsel" id="em-pace">
+        <option value="fast">⚡ Intense (n²)</option>
+        <option value="medium">🎯 Balanced</option>
+        <option value="slow">🌿 Relaxed</option>
+      </select>
+    </div>
+    <div class="fl"><label>Manual Revisions (overrides exam)</label><input class="fi" type="number" id="em-n" min="1" max="20" placeholder="Leave blank for auto"></div>
+    <div id="em-date-warn" class="hidden" style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:10px;font-size:12px;color:var(--amber);margin-bottom:8px">
+      ⚠ Changing the date will recalculate revision dates and reset completion status.
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-p" onclick="saveEdit()">Save</button>
+      <button class="btn btn-g" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-d" style="margin-left:auto" onclick="deleteTaskModal()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// BACKGROUND CANVAS ART
+// ══════════════════════════════════════════
+(function(){
+  const canvas=document.getElementById('bg-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,particles=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+  resize(); window.addEventListener('resize',resize);
+
+  class P{
+    constructor(){this.reset()}
+    reset(){
+      this.x=Math.random()*W; this.y=Math.random()*H;
+      this.r=Math.random()*1.2+0.3;
+      this.vx=(Math.random()-.5)*0.15; this.vy=(Math.random()-.5)*0.15;
+      this.a=Math.random()*Math.PI*2;
+      this.col=Math.random()<0.5?'79,156,249':'167,139,250';
+    }
+    update(){
+      this.x+=this.vx; this.y+=this.vy; this.a+=0.005;
+      if(this.x<0||this.x>W||this.y<0||this.y>H) this.reset();
+    }
+    draw(){
+      ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${this.col},0.6)`;ctx.fill();
+    }
+  }
+
+  // lines
+  class L{
+    constructor(){this.reset()}
+    reset(){
+      this.x1=Math.random()*W;this.y1=Math.random()*H;
+      this.a=Math.random()*Math.PI*2;
+      this.len=Math.random()*80+40;
+      this.speed=(Math.random()-.5)*0.3;
+      this.alpha=Math.random()*0.06+0.02;
+      this.col=Math.random()<0.5?'79,156,249':'167,139,250';
+    }
+    update(){this.a+=this.speed*0.005; if(Math.random()<0.001) this.reset()}
+    draw(){
+      const x2=this.x1+Math.cos(this.a)*this.len, y2=this.y1+Math.sin(this.a)*this.len;
+      ctx.beginPath();ctx.moveTo(this.x1,this.y1);ctx.lineTo(x2,y2);
+      ctx.strokeStyle=`rgba(${this.col},${this.alpha})`;ctx.lineWidth=0.8;ctx.stroke();
+    }
+  }
+
+  for(let i=0;i<60;i++) particles.push(new P());
+  const lines=[]; for(let i=0;i<20;i++) lines.push(new L());
+
+  // circles
+  const circles=[
+    {x:W*.15,y:H*.2,r:120,col:'79,156,249',a:0.03},
+    {x:W*.85,y:H*.7,r:200,col:'167,139,250',a:0.025},
+    {x:W*.5,y:H*.9,r:90,col:'52,211,153',a:0.02},
+  ];
+
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    // circles
+    circles.forEach(c=>{
+      c.a+=0.0003;
+      const x=c.x+Math.sin(c.a*2)*30, y=c.y+Math.cos(c.a)*20;
+      ctx.beginPath();ctx.arc(x,y,c.r,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(${c.col},0.06)`;ctx.lineWidth=1;ctx.stroke();
+      ctx.beginPath();ctx.arc(x,y,c.r*0.6,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(${c.col},0.04)`;ctx.lineWidth=0.5;ctx.stroke();
+    });
+    lines.forEach(l=>{l.update();l.draw()});
+    particles.forEach(p=>{p.update();p.draw()});
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+// ══════════════════════════════════════════
+// PACES
+// ══════════════════════════════════════════
+const PACES={
+  fast:{ label:'Intense', fn:n=>n*n },
+  medium:{ label:'Balanced', fn:n=>Math.floor(300*Math.pow(n/15,2)) },
+  slow:{ label:'Relaxed', fn:n=>[3,7,14,30,60,90,120][Math.min(n-1,6)] }
+};
+
+const NOTIF_TIMES=['6:00 AM','9:00 AM','12:00 PM','3:00 PM','6:00 PM','9:00 PM'];
+const LS='revos_v3';
+const DEFAULT_EXAM='2026-06-21';
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let S={tasks:[],completions:{},settings:{activeTimes:['9:00 AM','6:00 PM'],showMissed:true,nightCheckin:true}};
+function save(){localStorage.setItem(LS,JSON.stringify(S))}
+function load(){try{const d=localStorage.getItem(LS);if(d)S=JSON.parse(d)}catch(e){}if(!S.settings)S.settings={activeTimes:['9:00 AM','6:00 PM'],showMissed:true,nightCheckin:true}}
+
+// ══════════════════════════════════════════
+// DATE UTILS
+// ══════════════════════════════════════════
+const todayStr=()=>new Date().toISOString().slice(0,10);
+function addDays(s,n){const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function daysBetween(a,b){return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000)}
+function fmt(s){return new Date(s+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'})}
+function fmtL(s){return new Date(s+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}
+const isToday=s=>s===todayStr();
+const isPast=s=>s<todayStr();
+
+// ══════════════════════════════════════════
+// REVISION LOGIC
+// ══════════════════════════════════════════
+function getRevDates(task){
+  const pace=PACES[task.pace]||PACES.fast;
+  return Array.from({length:task.maxN},(_,i)=>{
+    const n=i+1, offset=pace.fn(n);
+    return {n,date:addDays(task.completedOn,offset),offset};
+  });
+}
+
+function calcMaxN(base,exam,pace){
+  if(!exam||exam<=base) return 6;
+  const p=PACES[pace]||PACES.fast;
+  let mx=0;
+  for(let n=1;n<=20;n++){if(addDays(base,p.fn(n))<=exam)mx=n;else break}
+  return Math.max(1,mx);
+}
+
+// ══════════════════════════════════════════
+// GRADE SYSTEM
+// ══════════════════════════════════════════
+function calcGrade(){
+  const today=todayStr();
+  let totalDue=0,totalDone=0,totalMissed=0;
+  // look at past 7 days
+  const since=addDays(today,-7);
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{
+      const key=task.id+'_'+rev.n;
+      if(rev.date>=since&&rev.date<=today){
+        totalDue++;
+        if(S.completions[key])totalDone++;
+        else if(rev.date<today)totalMissed++;
+      }
+    });
+  });
+  const rate=totalDue>0?totalDone/totalDue:1;
+  let grade,title,desc,color;
+  if(totalDue===0){grade='—';title='No data yet';desc='Add tasks and complete revisions to get graded';color='grade-A'}
+  else if(rate===1&&totalDue>0){grade='S';title='Perfect Score';desc='All revisions completed. Outstanding discipline!';color='grade-S'}
+  else if(rate>=0.9){grade='A';title='Excellent';desc='Almost perfect — 90%+ completion this week';color='grade-A'}
+  else if(rate>=0.75){grade='B';title='Good';desc='Solid effort — 75%+ completion this week';color='grade-B'}
+  else if(rate>=0.6){grade='C';title='Average';desc='Getting there — try to miss fewer revisions';color='grade-C'}
+  else if(rate>=0.4){grade='D';title='Below Average';desc='Significant missed revisions. Let\'s catch up';color='grade-D'}
+  else{grade='F';title='Critical';desc='Most revisions missed. Restart and stay consistent';color='grade-F'}
+  return{grade,title,desc,color,totalDue,totalDone,totalMissed,rate};
+}
+
+function calcStreak(){
+  let streak=0, d=todayStr();
+  for(let i=0;i<365;i++){
+    const day=addDays(todayStr(),-i);
+    let hadAny=false,allDone=true;
+    S.tasks.forEach(task=>{
+      getRevDates(task).forEach(rev=>{
+        if(rev.date===day){
+          hadAny=true;
+          if(!S.completions[task.id+'_'+rev.n])allDone=false;
+        }
+      });
+    });
+    if(!hadAny)continue;
+    if(allDone)streak++;
+    else break;
+  }
+  return streak;
+}
+
+// ══════════════════════════════════════════
+// HEATMAP
+// ══════════════════════════════════════════
+function renderHeatmap(containerId){
+  const wrap=document.getElementById(containerId);
+  if(!wrap)return;
+  // build 16 weeks of data
+  const today=new Date();
+  const start=new Date(today);
+  start.setDate(today.getDate()-111); // ~16 weeks back
+  // count completions per day
+  const counts={};
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{
+      const key=task.id+'_'+rev.n;
+      if(S.completions[key]){counts[rev.date]=(counts[rev.date]||0)+1}
+    });
+  });
+  // also mark days with due tasks
+  const due={};
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{
+      due[rev.date]=(due[rev.date]||0)+1;
+    });
+  });
+
+  const DAYS=['','M','','W','','F',''];
+  let html=`<div class="heatmap-title">📅 Activity Heatmap — Last 16 Weeks</div>`;
+  html+=`<div style="display:flex">`;
+  html+=`<div class="hm-day-labels">${DAYS.map(d=>`<div class="hm-dl">${d}</div>`).join('')}</div>`;
+  html+=`<div style="flex:1;overflow-x:auto"><div class="hm-grid" id="hm-inner"></div></div></div>`;
+  html+=`<div class="hm-legend"><div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-right:4px">Less</div>`;
+  [0,1,2,3,4].forEach(v=>html+=`<div class="hm-leg-cell hm-cell" data-v="${v}"></div>`);
+  html+=`<div style="font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:4px">More</div></div>`;
+  wrap.innerHTML=`<div class="heatmap-wrap">${html}</div>`;
+
+  // build grid
+  const grid=document.getElementById('hm-inner');
+  let cur=new Date(start);
+  cur.setDate(cur.getDate()-cur.getDay()); // align to Sunday
+  let lastMonth=-1;
+
+  while(cur<=today){
+    const col=document.createElement('div');col.className='hm-col';
+    for(let d=0;d<7;d++){
+      const ds=cur.toISOString().slice(0,10);
+      const cnt=counts[ds]||0;
+      const hasDue=!!due[ds];
+      const v=cnt>=4?4:cnt>=3?3:cnt>=2?2:cnt>=1?1:0;
+      const cell=document.createElement('div');
+      cell.className='hm-cell';cell.dataset.v=v;cell.dataset.date=ds;
+      if(ds===todayStr())cell.style.outline='1px solid rgba(79,156,249,0.6)';
+      cell.addEventListener('mouseenter',e=>{
+        const tt=document.getElementById('tooltip');
+        tt.textContent=`${ds}: ${cnt} done${hasDue?' ('+due[ds]+' due)':''}`;
+        tt.style.opacity=1;
+        tt.style.left=(e.clientX+10)+'px';tt.style.top=(e.clientY-28)+'px';
+      });
+      cell.addEventListener('mouseleave',()=>{document.getElementById('tooltip').style.opacity=0});
+      col.appendChild(cell);
+      cur.setDate(cur.getDate()+1);
+    }
+    grid.appendChild(col);
+  }
+}
+
+// ══════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════
+function nav(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.np').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('nb-'+name).classList.add('active');
+  if(name==='today')renderToday();
+  if(name==='tasks')renderTasks();
+  if(name==='schedule')renderSchedule();
+  if(name==='add')resetAdd();
+  if(name==='completed')renderCompleted();
+  if(name==='settings')renderSettings();
+}
+
+// ══════════════════════════════════════════
+// TODAY
+// ══════════════════════════════════════════
+function renderToday(){
+  const today=todayStr();
+  document.getElementById('today-label').textContent=fmtL(today);
+
+  let due=[],missed=[],done=[];
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{
+      const key=task.id+'_'+rev.n;
+      const isDone=!!S.completions[key];
+      if(rev.date===today){
+        if(isDone)done.push({task,rev,key});
+        else due.push({task,rev,key});
+      } else if(rev.date<today&&!isDone&&S.settings.showMissed){
+        missed.push({task,rev,key});
+      }
+    });
+  });
+
+  document.getElementById('st-due').textContent=due.length;
+  document.getElementById('st-done').textContent=done.length;
+  document.getElementById('st-miss').textContent=missed.length;
+  document.getElementById('st-total').textContent=S.tasks.length;
+
+  const tot=due.length+missed.length;
+  const badge=document.getElementById('badge-today');
+  badge.textContent=tot;badge.classList.toggle('hidden',tot===0);
+
+  // scorecard
+  const g=calcGrade(),streak=calcStreak();
+  document.getElementById('scorecard-wrap').innerHTML=`
+    <div class="scorecard ${g.color}">
+      <div class="grade-badge">${g.grade}</div>
+      <div class="grade-info">
+        <div class="grade-title">${g.title}</div>
+        <div class="grade-desc">${g.desc}</div>
+        <div class="grade-meta">
+          <span class="gm-item">7-day: <span>${g.totalDone}/${g.totalDue}</span></span>
+          <span class="gm-item">Rate: <span>${g.totalDue>0?Math.round(g.rate*100):100}%</span></span>
+          <span class="gm-item">Missed: <span>${g.totalMissed}</span></span>
+        </div>
+      </div>
+      <div class="grade-streak">
+        <div class="streak-num">${streak}</div>
+        <div class="streak-label">🔥 Streak</div>
+      </div>
+    </div>`;
+
+  renderHeatmap('heatmap-wrap-today');
+
+  // table sections
+  let html='';
+  if(missed.length){
+    html+=`<div class="sec">Missed from Previous Days</div>
+    <div class="table-wrap"><table class="uni-table">
+    <thead><tr><th>Task</th><th>Pace</th><th>Rev #</th><th>Was Due</th><th>Action</th></tr></thead><tbody>
+    ${missed.map(({task,rev,key})=>`
+      <tr class="missed-row">
+        <td style="font-weight:500">${esc(task.name)}</td>
+        <td><span class="tb ${task.pace}">${PACES[task.pace]?.label}</span></td>
+        <td><span class="rev-pill">#${rev.n}</span></td>
+        <td><span class="dp past">${fmt(rev.date)}</span></td>
+        <td><button class="ia done-btn" onclick="toggleKey('${key}')">Mark Done</button></td>
+      </tr>`).join('')}
+    </tbody></table></div>`;
+  }
+
+  if(due.length){
+    html+=`<div class="sec">Due Today</div>
+    <div class="table-wrap"><table class="uni-table">
+    <thead><tr><th>Task</th><th>Pace</th><th>Rev #</th><th>Offset</th><th>Action</th></tr></thead><tbody>
+    ${due.map(({task,rev,key})=>`
+      <tr class="today-row">
+        <td style="font-weight:500">${esc(task.name)}</td>
+        <td><span class="tb ${task.pace}">${PACES[task.pace]?.label}</span></td>
+        <td><span class="rev-pill">#${rev.n}</span></td>
+        <td class="mono" style="color:var(--muted);font-size:11px">+${rev.offset}d</td>
+        <td><button class="ia done-btn" onclick="toggleKey('${key}')">Mark Done</button></td>
+      </tr>`).join('')}
+    </tbody></table></div>`;
+  } else {
+    html+=`<div class="sec">Due Today</div><div class="empty"><div class="big">◌</div>Nothing due today!</div>`;
+  }
+
+  if(done.length){
+    html+=`<div class="sec">Completed Today</div>
+    <div class="table-wrap"><table class="uni-table">
+    <thead><tr><th>Task</th><th>Pace</th><th>Rev #</th><th>Offset</th><th>Action</th></tr></thead><tbody>
+    ${done.map(({task,rev,key})=>`
+      <tr>
+        <td style="font-weight:500;opacity:.7">${esc(task.name)}</td>
+        <td><span class="tb ${task.pace}">${PACES[task.pace]?.label}</span></td>
+        <td><span class="rev-pill" style="background:rgba(52,211,153,.12);color:var(--green);border-color:rgba(52,211,153,.3)">#${rev.n}</span></td>
+        <td class="mono" style="color:var(--muted);font-size:11px">+${rev.offset}d</td>
+        <td><button class="ia undone-btn" onclick="toggleKey('${key}')">Unmark</button></td>
+      </tr>`).join('')}
+    </tbody></table></div>`;
+  }
+
+  document.getElementById('today-content').innerHTML=html;
+}
+
+function toggleKey(key){
+  S.completions[key]=!S.completions[key];
+  save();
+  // re-render whichever view is active
+  const active=document.querySelector('.view.active');
+  if(active?.id==='view-today')renderToday();
+  else if(active?.id==='view-tasks')renderTasks();
+  else if(active?.id==='view-schedule')renderSchedule();
+  else if(active?.id==='view-completed')renderCompleted();
+  toast(S.completions[key]?'✓ Done':'Unmarked');
+}
+
+// ══════════════════════════════════════════
+// TASKS
+// ══════════════════════════════════════════
+function renderTasks(){
+  const el=document.getElementById('tasks-list');
+  document.getElementById('tasks-count-label').textContent=S.tasks.length+' tasks tracked';
+  el.innerHTML='';
+  if(!S.tasks.length){el.innerHTML='<div class="empty"><div class="big">◌</div>No tasks yet.</div>';return}
+
+  S.tasks.forEach(task=>{
+    const revs=getRevDates(task);
+    const done=revs.filter(r=>!!S.completions[task.id+'_'+r.n]).length;
+    const pct=revs.length?Math.round(done/revs.length*100):0;
+    const examStr=task.examDate?` · Exam: ${fmt(task.examDate)}`:'';
+
+    const card=document.createElement('div');
+    card.className='task-expand';card.id='texp-'+task.id;
+
+    card.innerHTML=`
+      <div class="te-header" onclick="toggleExp('${task.id}')">
+        <span class="te-arrow" id="arr-${task.id}">▶</span>
+        <div style="flex:1;min-width:0">
+          <div class="te-task-name">${esc(task.name)}</div>
+          <div class="te-meta">Completed: ${fmt(task.completedOn)}${examStr}</div>
+          <div class="prog-bar" style="margin-top:6px;max-width:200px"><div class="prog-fill" style="width:${pct}%"></div></div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px">${done}/${revs.length} revisions · ${pct}%</div>
+        </div>
+        <span class="tb ${task.pace}">${PACES[task.pace]?.label}</span>
+        <div onclick="event.stopPropagation()" style="display:flex;gap:6px">
+          <button class="ia" onclick="openEdit('${task.id}')">Edit</button>
+          <button class="ia danger" onclick="delTask('${task.id}')">✕</button>
+        </div>
+      </div>
+      <div class="te-body" id="teb-${task.id}">
+        <table class="uni-table" style="border-radius:0;border:none;border-top:1px solid var(--b1)">
+          <thead><tr><th>Date</th><th>Rev #</th><th>Offset</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            ${revs.map(rev=>{
+              const key=task.id+'_'+rev.n;
+              const isDone=!!S.completions[key];
+              const isTd=isToday(rev.date),isPst=isPast(rev.date);
+              const dcls=isDone?'past':isTd?'today':isPst?'past':'future';
+              const st=isDone?'<span class="st-chip st-done">✓ done</span>'
+                :isTd?'<span class="st-chip st-today">◉ today</span>'
+                :isPst?'<span class="st-chip st-missed">✗ missed</span>'
+                :'<span class="st-chip st-upcoming">○ upcoming</span>';
+              const btn=isDone
+                ?`<button class="ia undone-btn" onclick="toggleKey('${key}')">Unmark</button>`
+                :`<button class="ia done-btn" onclick="toggleKey('${key}')">Mark Done</button>`;
+              return `<tr class="${isTd?'today-row':isPst&&!isDone?'missed-row':''}">
+                <td><span class="dp ${dcls}">${fmt(rev.date)}</span></td>
+                <td><span class="rev-pill">#${rev.n}</span></td>
+                <td class="mono" style="color:var(--muted);font-size:11px">+${rev.offset}d</td>
+                <td>${st}</td><td>${btn}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    el.appendChild(card);
+  });
+}
+
+function toggleExp(id){
+  const arr=document.getElementById('arr-'+id);
+  const body=document.getElementById('teb-'+id);
+  if(!arr||!body)return;
+  const open=arr.classList.contains('open');
+  arr.classList.toggle('open',!open);
+  body.classList.toggle('open',!open);
+}
+
+function delTask(id){
+  if(!confirm('Delete this task?'))return;
+  S.tasks=S.tasks.filter(t=>t.id!==id);
+  Object.keys(S.completions).filter(k=>k.startsWith(id+'_')).forEach(k=>delete S.completions[k]);
+  save();renderTasks();renderToday();toast('Deleted');
+}
+
+// ══════════════════════════════════════════
+// SCHEDULE
+// ══════════════════════════════════════════
+function renderSchedule(){
+  const el=document.getElementById('schedule-content');
+  if(!S.tasks.length){el.innerHTML='<div class="empty"><div class="big">◌</div>No tasks yet.</div>';return}
+  const rows=[];
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{rows.push({date:rev.date,task,rev,key:task.id+'_'+rev.n})});
+  });
+  rows.sort((a,b)=>a.date.localeCompare(b.date));
+  el.innerHTML=`<div class="table-wrap"><table class="uni-table">
+  <thead><tr><th>Date</th><th>Task</th><th>Pace</th><th>Rev #</th><th>Offset</th><th>Status</th><th>Action</th></tr></thead>
+  <tbody>${rows.map(({date,task,rev,key})=>{
+    const isDone=!!S.completions[key],isTd=isToday(date),isPst=isPast(date);
+    const dcls=isDone?'past':isTd?'today':isPst?'past':'future';
+    const st=isDone?'<span class="st-chip st-done">✓ done</span>'
+      :isTd?'<span class="st-chip st-today">◉ today</span>'
+      :isPst?'<span class="st-chip st-missed">✗ missed</span>'
+      :'<span class="st-chip st-upcoming">○ upcoming</span>';
+    const btn=isDone
+      ?`<button class="ia undone-btn" onclick="toggleKey('${key}')">Unmark</button>`
+      :`<button class="ia done-btn" onclick="toggleKey('${key}')">Mark Done</button>`;
+    return `<tr class="${isTd?'today-row':isPst&&!isDone?'missed-row':''}">
+      <td><span class="dp ${dcls}">${fmt(date)}</span></td>
+      <td style="font-weight:500">${esc(task.name)}</td>
+      <td><span class="tb ${task.pace}">${PACES[task.pace].label}</span></td>
+      <td><span class="rev-pill">#${rev.n}</span></td>
+      <td class="mono" style="color:var(--muted);font-size:11px">+${rev.offset}d</td>
+      <td>${st}</td><td>${btn}</td>
+    </tr>`;
+  }).join('')}</tbody></table></div>`;
+}
+
+// ══════════════════════════════════════════
+// ADD
+// ══════════════════════════════════════════
+let addMode='exam';
+function setAddMode(m){
+  addMode=m;
+  document.getElementById('msw-exam').classList.toggle('active',m==='exam');
+  document.getElementById('msw-manual').classList.toggle('active',m==='manual');
+  document.getElementById('mode-exam-block').classList.toggle('hidden',m!=='exam');
+  document.getElementById('mode-manual-block').classList.toggle('hidden',m!=='manual');
+  updateExamPreview();
+}
+function resetAdd(){
+  document.getElementById('in-name').value='';
+  document.getElementById('in-date').value=todayStr();
+  document.getElementById('in-exam').value=DEFAULT_EXAM;
+  document.getElementById('in-pace').value='medium';
+  document.getElementById('in-n').value=6;
+  setAddMode('exam');
+  updateExamPreview();
+}
+function onPaceChange(){updateExamPreview()}
+function updateExamPreview(){
+  const base=document.getElementById('in-date').value;
+  const exam=document.getElementById('in-exam').value;
+  const pace=document.getElementById('in-pace').value;
+  const el=document.getElementById('exam-preview');
+  if(addMode==='manual'){el.innerHTML='Manual mode — set count directly';return}
+  if(!exam||!base){el.innerHTML='Select exam date to see revision count';return}
+  if(exam<=base){el.innerHTML='<span class="ep-warn">⚠ Exam must be after completion date</span>';return}
+  const n=calcMaxN(base,exam,pace);
+  const days=daysBetween(base,exam);
+  const p=PACES[pace];
+  const sampleDays=Array.from({length:Math.min(n,5)},(_,i)=>'+'+p.fn(i+1)+'d').join(', ');
+  el.innerHTML=`<span class="ep-good">${n} revision${n!==1?'s':''}</span> fit before ${fmt(exam)} · ${days} days away<br><span style="color:var(--dim)">${sampleDays}${n>5?'...':''}</span>`;
+}
+function addTask(){
+  const name=document.getElementById('in-name').value.trim();
+  const date=document.getElementById('in-date').value;
+  const exam=document.getElementById('in-exam').value||null;
+  const pace=document.getElementById('in-pace').value;
+  if(!name){toast('Enter a task name');return}
+  if(!date){toast('Pick a date');return}
+  let maxN;
+  if(addMode==='exam'&&exam&&exam>date){maxN=calcMaxN(date,exam,pace)}
+  else{maxN=parseInt(document.getElementById('in-n').value)||6}
+  const task={id:'t'+Date.now(),name,completedOn:date,examDate:exam,pace,maxN,createdAt:new Date().toISOString()};
+  S.tasks.push(task);save();
+  toast('✓ Added: '+name);nav('today');
+}
+
+// ══════════════════════════════════════════
+// COMPLETED
+// ══════════════════════════════════════════
+function renderCompleted(){
+  const list=document.getElementById('comp-list');
+  const byTask={};
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{
+      const key=task.id+'_'+rev.n;
+      if(S.completions[key]){
+        if(!byTask[task.id])byTask[task.id]={task,items:[]};
+        byTask[task.id].items.push({rev,key});
+      }
+    });
+  });
+  const total=Object.values(byTask).reduce((a,g)=>a+g.items.length,0);
+  document.getElementById('comp-label').textContent=total+' completed revisions';
+  if(!total){list.innerHTML='<div class="empty"><div class="big">✓</div>No completed revisions yet.</div>';return}
+
+  list.innerHTML=Object.values(byTask).map(({task,items})=>`
+    <div class="comp-group">
+      <div class="comp-group-header">
+        <div class="cgh-name">${esc(task.name)}</div>
+        <span class="tb ${task.pace}">${PACES[task.pace]?.label}</span>
+        <span class="cgh-count">${items.length} done</span>
+      </div>
+      <table class="uni-table" style="border-radius:0;border:none">
+        <thead><tr><th>Rev #</th><th>Due Date</th><th>Offset</th><th>Action</th></tr></thead>
+        <tbody>${items.map(({rev,key})=>`
+          <tr>
+            <td><span class="rev-pill" style="background:rgba(52,211,153,.12);color:var(--green);border-color:rgba(52,211,153,.3)">#${rev.n}</span></td>
+            <td><span class="dp past">${fmt(rev.date)}</span></td>
+            <td class="mono" style="color:var(--muted);font-size:11px">+${rev.offset}d</td>
+            <td><button class="ia undone-btn" onclick="toggleKey('${key}');renderCompleted()">Unmark</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// EDIT MODAL
+// ══════════════════════════════════════════
+function openEdit(id){
+  const task=S.tasks.find(t=>t.id===id);if(!task)return;
+  document.getElementById('em-id').value=id;
+  document.getElementById('em-name').value=task.name;
+  document.getElementById('em-date').value=task.completedOn;
+  document.getElementById('em-exam').value=task.examDate||'';
+  document.getElementById('em-pace').value=task.pace;
+  document.getElementById('em-n').value=task.maxN;
+  document.getElementById('em-date-warn').classList.add('hidden');
+  document.getElementById('em-date').addEventListener('input',()=>{
+    document.getElementById('em-date-warn').classList.remove('hidden');
+  },{once:true});
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('edit-modal').classList.add('hidden')}
+function saveEdit(){
+  const id=document.getElementById('em-id').value;
+  const task=S.tasks.find(t=>t.id===id);if(!task)return;
+  const oldDate=task.completedOn;
+  task.name=document.getElementById('em-name').value.trim()||task.name;
+  task.completedOn=document.getElementById('em-date').value;
+  task.examDate=document.getElementById('em-exam').value||null;
+  task.pace=document.getElementById('em-pace').value;
+  const manN=parseInt(document.getElementById('em-n').value);
+  if(manN&&manN>0)task.maxN=manN;
+  else if(task.examDate&&task.examDate>task.completedOn)task.maxN=calcMaxN(task.completedOn,task.examDate,task.pace);
+  if(oldDate!==task.completedOn){
+    Object.keys(S.completions).filter(k=>k.startsWith(id+'_')).forEach(k=>delete S.completions[k]);
+  }
+  save();closeModal();renderTasks();renderToday();toast('✓ Updated');
+}
+function deleteTaskModal(){closeModal();delTask(document.getElementById('em-id').value)}
+
+// ══════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════
+function renderSettings(){
+  const chips=document.getElementById('time-chips');chips.innerHTML='';
+  NOTIF_TIMES.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='tc'+(S.settings.activeTimes.includes(t)?' on':'');
+    b.textContent=t;b.onclick=()=>{
+      const i=S.settings.activeTimes.indexOf(t);
+      if(i>=0)S.settings.activeTimes.splice(i,1);else S.settings.activeTimes.push(t);
+      save();renderSettings();
+    };chips.appendChild(b);
+  });
+  document.getElementById('tog-missed').className='tog'+(S.settings.showMissed?' on':'');
+  document.getElementById('tog-night').className='tog'+(S.settings.nightCheckin?' on':'');
+  updateNotifUI();
+}
+function togSet(k,id){S.settings[k]=!S.settings[k];save();renderSettings()}
+
+// ══════════════════════════════════════════
+// NOTIFICATIONS — FIXED
+// The key fix: Notification.requestPermission() MUST be called
+// synchronously inside a user-gesture handler. We use async/await
+// directly in the onclick-triggered function. No deferred calls.
+// ══════════════════════════════════════════
+let notifTimers=[];
+
+async function enableNotif(){
+  if(!('Notification' in window)){toast('Notifications not supported in this browser');return}
+  // If already granted, just reschedule
+  if(Notification.permission==='granted'){
+    rescheduleNotifs();updateNotifUI();toast('✓ Notifications rescheduled');return;
+  }
+  // If denied, can't re-prompt — must go to site settings
+  if(Notification.permission==='denied'){
+    toast('Blocked! Go to browser Site Settings and allow notifications');
+    alert('Notifications are blocked for this page.\n\nTo fix:\n• Chrome/Edge: Click the 🔒 lock icon in the address bar → Site Settings → Notifications → Allow\n• Firefox: Click the lock icon → Connection Secure → More Information → Permissions → Notifications\n• Safari: Safari menu → Settings for This Website → Notifications → Allow\n\nThen reload this page and click Enable again.');
+    return;
+  }
+  // default — request (must be in user gesture, which it is since this is called from onclick)
+  try{
+    const result=await Notification.requestPermission();
+    if(result==='granted'){
+      rescheduleNotifs();updateNotifUI();save();toast('✓ Notifications enabled!');
+    } else if(result==='denied'){
+      toast('Permission denied — check browser site settings');updateNotifUI();
+    } else {
+      toast('Notification permission dismissed');
+    }
+  } catch(e){
+    // Some older browsers don't return a promise
+    Notification.requestPermission(function(result){
+      if(result==='granted'){rescheduleNotifs();updateNotifUI();save();toast('✓ Enabled!')}
+      else {toast('Permission denied');updateNotifUI()}
+    });
+  }
+}
+
+function rescheduleNotifs(){
+  notifTimers.forEach(clearTimeout);notifTimers=[];
+  if(Notification.permission!=='granted')return;
+  const now=new Date();
+  S.settings.activeTimes.forEach(ts=>{
+    const[tp,mer]=ts.split(' ');
+    let[h,m]=tp.split(':').map(Number);
+    if(mer==='PM'&&h!==12)h+=12;
+    if(mer==='AM'&&h===12)h=0;
+    const t=new Date(now);t.setHours(h,m,0,0);
+    if(t<=now)t.setDate(t.getDate()+1);
+    const id=setTimeout(()=>{fireNotif(ts);rescheduleNotifs()},t-now);
+    notifTimers.push(id);
+  });
+}
+
+function fireNotif(label){
+  const today=todayStr();let due=0,missed=0;
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{
+      const key=task.id+'_'+rev.n;
+      if(!S.completions[key]){
+        if(rev.date===today)due++;
+        else if(rev.date<today)missed++;
+      }
+    });
+  });
+  if(due+missed===0)return;
+  let body='';
+  if(due)body+=due+' revision'+(due>1?'s':'')+' due today';
+  if(missed)body+=(body?' · ':'')+missed+' missed';
+  try{
+    new Notification('RevisionOS — '+label,{body,icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="%234f9cf9"/><text x="16" y="23" text-anchor="middle" font-size="18" fill="white">R</text></svg>'});
+  }catch(e){console.warn('Notif failed:',e)}
+}
+
+function testNotif(){
+  if(Notification.permission!=='granted'){enableNotif();return}
+  try{
+    new Notification('RevisionOS — Test ✓',{body:'Notifications are working correctly!'});
+    toast('Test notification fired!');
+  }catch(e){toast('Failed: '+e.message)}
+}
+
+function updateNotifUI(){
+  const p=('Notification' in window)?Notification.permission:'unsupported';
+  const dot=document.getElementById('notif-dot');
+  const nsdot=document.getElementById('ns-dot');
+  const nstext=document.getElementById('ns-text');
+  const btn=document.getElementById('notif-btn');
+  if(p==='granted'){
+    dot.className='notif-dot on';
+    if(nsdot)nsdot.className='nsdot on';
+    if(nstext)nstext.textContent='Active — notifications will fire at selected times';
+    if(btn)btn.textContent='Re-schedule Notifications';
+  } else if(p==='denied'){
+    dot.className='notif-dot';
+    if(nsdot)nsdot.className='nsdot';
+    if(nstext)nstext.textContent='Blocked — open browser Site Settings to allow';
+    if(btn)btn.textContent='How to Fix';
+  } else {
+    dot.className='notif-dot';
+    if(nsdot)nsdot.className='nsdot';
+    if(nstext)nstext.textContent='Not enabled — click Enable Notifications';
+    if(btn)btn.textContent='Enable Notifications';
+  }
+}
+
+// ══════════════════════════════════════════
+// PWA INSTALL
+// ══════════════════════════════════════════
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('install-btn').style.display='block';
+});
+async function installPWA(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const{outcome}=await deferredPrompt.userChoice;
+    if(outcome==='accepted'){toast('✓ App installed!');document.getElementById('install-btn').style.display='none'}
+    deferredPrompt=null;
+  } else {
+    toast('To install: use browser menu → Add to Home Screen');
+  }
+}
+window.addEventListener('appinstalled',()=>{toast('App installed successfully!');document.getElementById('install-btn').style.display='none'});
+
+// Inject manifest for PWA
+(function(){
+  const manifest={name:'RevisionOS',short_name:'RevisionOS',start_url:location.href,display:'standalone',background_color:'#0b0d10',theme_color:'#0b0d10',icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="40" fill="%234f9cf9"/><text x="96" y="135" text-anchor="middle" font-size="120" font-weight="700" fill="white" font-family="monospace">R</text></svg>',sizes:'192x192',type:'image/svg+xml'}]};
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  document.getElementById('manifest-link').href=URL.createObjectURL(blob);
+  document.getElementById('manifest-link').rel='manifest';
+})();
+
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+function exportD(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='revos_backup.json';a.click();toast('Exported')}
+function importD(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(!d.tasks)throw 0;S=d;save();nav('today');toast('✓ Imported '+S.tasks.length+' tasks')}catch{toast('Invalid file')}};r.readAsText(f)}
+function clearAll(){if(!confirm('Delete everything?'))return;S.tasks=[];S.completions={};save();nav('today');toast('Cleared')}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600)}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+load();
+document.getElementById('in-date').value=todayStr();
+document.getElementById('in-exam').value=DEFAULT_EXAM;
+document.getElementById('in-exam').addEventListener('input',updateExamPreview);
+document.getElementById('in-date').addEventListener('input',updateExamPreview);
+document.getElementById('in-pace').addEventListener('change',updateExamPreview);
+renderToday();
+updateNotifUI();
+if(Notification.permission==='granted')rescheduleNotifs();
+
+// Night check-in
+if(S.settings.nightCheckin){
+  const now=new Date(),t=new Date(now);t.setHours(21,0,0,0);
+  if(t>now){
+    setTimeout(()=>{
+      if(Notification.permission!=='granted')return;
+      const today=todayStr();let p=0;
+      S.tasks.forEach(task=>{getRevDates(task).forEach(r=>{if(r.date===today&&!S.completions[task.id+'_'+r.n])p++;})});
+      if(p>0)new Notification('RevisionOS — Night Check-in',{body:p+' revision'+(p>1?'s':'')+' still unmarked today!'});
+    },t-now);
+  }
+}
+</script>
+</body>
+</html>

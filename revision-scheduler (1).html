@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RevisionOS</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0d0f12; --s1:#161a20; --s2:#1e2430; --s3:#252d3a;
+  --b1:#2a3040; --b2:#3a4560; --b3:#4a5570;
+  --text:#e8edf5; --muted:#7a8599; --dim:#4a5568;
+  --accent:#4f9cf9; --purple:#a78bfa; --green:#34d399;
+  --amber:#fbbf24; --red:#f87171; --orange:#fb923c;
+  --mono:'Space Mono',monospace; --sans:'DM Sans',sans-serif;
+  --r:10px; --r2:14px; --r3:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;line-height:1.5;padding-bottom:80px}
+
+/* ── TOP NAV PILL ── */
+.topbar{position:sticky;top:12px;z-index:100;display:flex;justify-content:center;padding:0 16px;margin-bottom:28px;pointer-events:none}
+.nav-pill{background:rgba(22,26,32,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--b1);border-radius:999px;padding:5px;display:flex;gap:2px;pointer-events:all;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.nav-pill button{background:none;border:none;color:var(--muted);font-family:var(--sans);font-size:13px;font-weight:500;padding:7px 16px;border-radius:999px;cursor:pointer;transition:all 0.18s;white-space:nowrap;position:relative}
+.nav-pill button:hover{color:var(--text)}
+.nav-pill button.active{background:var(--s3);color:var(--text)}
+.nav-pill button .nbadge{position:absolute;top:2px;right:6px;background:var(--red);color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono)}
+
+/* ── MAIN ── */
+.main{max-width:780px;margin:0 auto;padding:0 20px}
+
+/* ── VIEWS ── */
+.view{display:none}.view.active{display:block}
+
+/* ── PAGE HEADER ── */
+.ph{margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ph h2{font-size:20px;font-weight:600}
+.ph p{color:var(--muted);font-size:12px;margin-top:3px}
+
+/* ── STAT CARDS ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+.sc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:14px 16px}
+.sc .sl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sc .sv{font-family:var(--mono);font-size:26px;font-weight:700}
+.sv.ca{color:var(--accent)}.sv.cg{color:var(--green)}.sv.cr{color:var(--red)}.sv.cam{color:var(--amber)}
+
+/* ── SECTION LABEL ── */
+.sec{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--b1)}
+
+/* ── TASK ROW (universal) ── */
+.tr{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:13px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:border-color .15s;cursor:default}
+.tr:hover{border-color:var(--b2)}
+.tr.missed{border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.04)}
+.tr.done-row{opacity:.55}
+
+/* check button */
+.chk{width:22px;height:22px;border-radius:50%;border:2px solid var(--b2);background:none;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:11px;font-weight:700;color:transparent}
+.chk:hover{border-color:var(--green)}
+.chk.on{background:var(--green);border-color:var(--green);color:#0d0f12}
+
+/* info block */
+.ti{flex:1;min-width:0}
+.tn{font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm{font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
+
+/* type badge */
+.tb{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;flex-shrink:0;white-space:nowrap}
+.tb.ch{background:rgba(167,139,250,.15);color:var(--purple)}
+.tb.sc2{background:rgba(79,156,249,.12);color:var(--accent)}
+.tb.co{background:rgba(52,211,153,.12);color:var(--green)}
+
+/* rev badge */
+.rb{font-family:var(--mono);font-size:11px;background:var(--s2);border:1px solid var(--b1);padding:3px 8px;border-radius:6px;color:var(--muted);flex-shrink:0}
+
+/* action btns inline */
+.row-actions{display:flex;gap:6px;flex-shrink:0}
+.ia{background:none;border:1px solid var(--b1);color:var(--muted);font-size:11px;padding:4px 9px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:all .15s;white-space:nowrap}
+.ia:hover{border-color:var(--b2);color:var(--text)}
+.ia.danger:hover{border-color:rgba(248,113,113,.5);color:var(--red)}
+
+/* ── PACE CARD ── */
+.pace-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+.pace-card{background:var(--s2);border:2px solid var(--b1);border-radius:var(--r2);padding:14px;cursor:pointer;transition:all .18s}
+.pace-card:hover{border-color:var(--b2)}
+.pace-card.sel{border-color:var(--accent);background:rgba(79,156,249,.08)}
+.pace-card .picon{font-size:20px;margin-bottom:6px}
+.pace-card .pname{font-size:13px;font-weight:600;margin-bottom:3px}
+.pace-card .pdesc{font-size:11px;color:var(--muted);line-height:1.4}
+.pace-card .pdays{font-family:var(--mono);font-size:10px;color:var(--accent);margin-top:6px}
+
+/* ── FORM ── */
+.form-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:22px}
+.fl{margin-bottom:16px}
+.fl label{display:block;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.fi,.fsel{width:100%;background:var(--bg);border:1px solid var(--b1);color:var(--text);border-radius:var(--r);padding:9px 13px;font-family:var(--sans);font-size:14px;transition:border-color .15s;-webkit-appearance:none}
+.fi:focus,.fsel:focus{outline:none;border-color:var(--accent)}
+.fsel option{background:var(--bg)}
+.frow{display:flex;gap:10px}
+.frow .fl{flex:1}
+
+.exam-preview{background:var(--bg);border:1px solid var(--b1);border-radius:var(--r);padding:10px 13px;font-size:12px;color:var(--muted);margin-top:6px;font-family:var(--mono);min-height:28px}
+.exam-preview span{color:var(--green)}
+
+/* ── BUTTONS ── */
+.btn{padding:9px 18px;border-radius:var(--r);border:none;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-p{background:var(--accent);color:#0d0f12}.btn-p:hover{background:#70b0fa}
+.btn-g{background:none;border:1px solid var(--b1);color:var(--muted)}.btn-g:hover{border-color:var(--b2);color:var(--text)}
+.btn-d{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red)}.btn-d:hover{background:rgba(248,113,113,.2)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+
+/* ── TASKS+SCHEDULE TAB ── */
+.view-switch{display:flex;background:var(--s2);border:1px solid var(--b1);border-radius:999px;padding:3px;gap:2px;width:fit-content;margin-bottom:20px}
+.vs-btn{background:none;border:none;color:var(--muted);font-size:12px;font-weight:500;padding:6px 16px;border-radius:999px;cursor:pointer;transition:all .18s;font-family:var(--sans)}
+.vs-btn.active{background:var(--s3);color:var(--text)}
+
+/* task expand card */
+.task-expand{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);margin-bottom:10px;overflow:hidden;transition:border-color .15s}
+.task-expand:hover{border-color:var(--b2)}
+.te-header{padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.te-arrow{color:var(--muted);font-size:12px;transition:transform .2s;flex-shrink:0}
+.te-arrow.open{transform:rotate(90deg)}
+.te-body{display:none;border-top:1px solid var(--b1);padding:12px 16px}
+.te-body.open{display:block}
+
+/* schedule rows inside expand */
+.sched-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1)}
+.sched-row:last-child{border-bottom:none}
+.dp{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:6px;min-width:70px;text-align:center}
+.dp.past{background:rgba(255,255,255,.05);color:var(--muted)}
+.dp.today{background:rgba(79,156,249,.15);color:var(--accent)}
+.dp.future{background:rgba(52,211,153,.1);color:var(--green)}
+.sched-status{font-family:var(--mono);font-size:11px;margin-left:auto;flex-shrink:0}
+
+/* flat schedule table */
+.sched-flat{width:100%;border-collapse:collapse}
+.sched-flat th{text-align:left;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 10px 8px;border-bottom:1px solid var(--b1)}
+.sched-flat td{padding:9px 10px;border-bottom:1px solid rgba(42,48,64,.6);font-size:13px;vertical-align:middle}
+.sched-flat tr:hover td{background:rgba(255,255,255,.015)}
+.sched-flat tr.trow td{background:rgba(79,156,249,.04)}
+
+/* ── COMPLETED TAB ── */
+.comp-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.comp-check{width:22px;height:22px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:#0d0f12;font-size:11px;font-weight:700;flex-shrink:0}
+
+/* ── EDIT MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:var(--r2);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:18px}
+.modal-footer{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.hidden{display:none!important}
+
+/* ── SETTINGS ── */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.scard{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r2);padding:18px}
+.scard.full{grid-column:span 2}
+.scard h3{font-size:13px;font-weight:600;margin-bottom:12px}
+.time-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.tc{padding:5px 12px;border-radius:999px;border:1px solid var(--b1);background:none;color:var(--muted);font-size:11px;font-family:var(--mono);cursor:pointer;transition:all .15s}
+.tc.on{background:rgba(79,156,249,.12);border-color:var(--accent);color:var(--accent)}
+.tc:hover:not(.on){border-color:var(--b2);color:var(--text)}
+.trow2{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--b1)}
+.trow2:last-child{border-bottom:none}
+.tog{width:36px;height:20px;border-radius:999px;background:var(--b2);cursor:pointer;position:relative;transition:background .2s;border:none;flex-shrink:0}
+.tog::after{content:'';width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform .2s}
+.tog.on{background:var(--green)}.tog.on::after{transform:translateX(16px)}
+
+/* ── NOTIF STATUS ── */
+.ns{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);margin-top:10px}
+.nsdot{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0}
+.nsdot.on{background:var(--green)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--s2);border:1px solid var(--b2);color:var(--text);padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;transition:all .25s;pointer-events:none;z-index:999;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:48px 20px;color:var(--muted);font-family:var(--mono);font-size:12px}
+.empty .big{font-size:36px;margin-bottom:10px;opacity:.4}
+
+/* ── MISC ── */
+hr{border:none;border-top:1px solid var(--b1);margin:16px 0}
+.mono{font-family:var(--mono)}
+@media(max-width:600px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .pace-grid{grid-template-columns:1fr}
+  .sg{grid-template-columns:1fr}.scard.full{grid-column:span 1}
+  .frow{flex-direction:column}
+  .nav-pill button{padding:6px 11px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<div class="topbar">
+  <div class="nav-pill">
+    <button class="active" onclick="nav('today')" id="nb-today">Today<span class="nbadge hidden" id="badge-today">0</span></button>
+    <button onclick="nav('tasks')" id="nb-tasks">Tasks</button>
+    <button onclick="nav('add')" id="nb-add">+ Add</button>
+    <button onclick="nav('completed')" id="nb-completed">Done</button>
+    <button onclick="nav('settings')" id="nb-settings">⚙</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ═══ TODAY ═══ -->
+<div class="view active" id="view-today">
+  <div class="ph">
+    <div><h2>Today</h2><p id="today-label"></p></div>
+  </div>
+  <div class="stats">
+    <div class="sc"><div class="sl">Due</div><div class="sv ca" id="st-due">0</div></div>
+    <div class="sc"><div class="sl">Done</div><div class="sv cg" id="st-done">0</div></div>
+    <div class="sc"><div class="sl">Missed</div><div class="sv cr" id="st-miss">0</div></div>
+    <div class="sc"><div class="sl">Tasks</div><div class="sv" id="st-total">0</div></div>
+  </div>
+  <div id="today-missed-sec"></div>
+  <div id="today-due-sec"></div>
+  <div id="today-comp-sec"></div>
+</div>
+
+<!-- ═══ TASKS + SCHEDULE ═══ -->
+<div class="view" id="view-tasks">
+  <div class="ph">
+    <div><h2>Tasks & Schedule</h2><p id="tasks-count-label"></p></div>
+  </div>
+  <div class="view-switch">
+    <button class="vs-btn active" id="vsb-tasks" onclick="setTasksView('tasks')">▤ Tasks</button>
+    <button class="vs-btn" id="vsb-sched" onclick="setTasksView('sched')">◫ Schedule</button>
+  </div>
+  <div id="tv-tasks"></div>
+  <div id="tv-sched" class="hidden"></div>
+</div>
+
+<!-- ═══ ADD ═══ -->
+<div class="view" id="view-add">
+  <div class="ph"><div><h2>Add Task</h2><p>Track a chapter completion & auto-schedule revisions</p></div></div>
+  <div class="form-card">
+    <div class="fl">
+      <label>Task / Chapter Name</label>
+      <input class="fi" type="text" id="in-name" placeholder="e.g. Chapter 3 — Thermodynamics">
+    </div>
+    <div class="frow">
+      <div class="fl">
+        <label>Completed On</label>
+        <input class="fi" type="date" id="in-date">
+      </div>
+      <div class="fl">
+        <label>Exam Date <span style="color:var(--dim);font-size:10px">(optional)</span></label>
+        <input class="fi" type="date" id="in-exam">
+      </div>
+    </div>
+    <div class="fl">
+      <label>Revision Pace</label>
+      <div class="pace-grid" id="pace-grid">
+        <div class="pace-card sel" data-pace="fast" onclick="selPace(this)">
+          <div class="picon">⚡</div>
+          <div class="pname">Intense</div>
+          <div class="pdesc">Tight intervals, high retention</div>
+          <div class="pdays" id="pd-fast"></div>
+        </div>
+        <div class="pace-card" data-pace="medium" onclick="selPace(this)">
+          <div class="picon">🎯</div>
+          <div class="pname">Balanced</div>
+          <div class="pdesc">Good retention, manageable load</div>
+          <div class="pdays" id="pd-medium"></div>
+        </div>
+        <div class="pace-card" data-pace="slow" onclick="selPace(this)">
+          <div class="picon">🌿</div>
+          <div class="pname">Relaxed</div>
+          <div class="pdesc">Comfortable, low pressure</div>
+          <div class="pdays" id="pd-slow"></div>
+        </div>
+      </div>
+      <div class="exam-preview" id="exam-preview">Select an exam date to see how many revisions fit</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-p" onclick="addTask()">Add Task</button>
+      <button class="btn btn-g" onclick="nav('today')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COMPLETED ═══ -->
+<div class="view" id="view-completed">
+  <div class="ph"><div><h2>Completed Revisions</h2><p id="comp-label"></p></div></div>
+  <div id="comp-list"></div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div class="view" id="view-settings">
+  <div class="ph"><div><h2>Settings</h2></div></div>
+  <div class="sg">
+    <div class="scard full">
+      <h3>Notification Times</h3>
+      <p style="font-size:12px;color:var(--muted)">Browser must allow notifications from this page. If the button doesn't work, check your browser's site settings.</p>
+      <div class="time-chips" id="time-chips"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button class="btn btn-p" id="notif-btn" onclick="enableNotif()">Enable Notifications</button>
+        <button class="btn btn-g" onclick="testNotif()">Send Test</button>
+      </div>
+      <div class="ns"><div class="nsdot" id="ns-dot"></div><span id="ns-text">Not enabled</span></div>
+    </div>
+    <div class="scard">
+      <h3>Preferences</h3>
+      <div class="trow2">
+        <div><div style="font-size:13px">Show missed tasks</div><div style="font-size:11px;color:var(--muted)">Highlight overdue on Today</div></div>
+        <button class="tog on" id="tog-missed" onclick="togSet('showMissed','tog-missed')"></button>
+      </div>
+      <div class="trow2">
+        <div><div style="font-size:13px">Night check-in (9 PM)</div><div style="font-size:11px;color:var(--muted)">Remind if undone tasks remain</div></div>
+        <button class="tog on" id="tog-night" onclick="togSet('nightCheckin','tog-night')"></button>
+      </div>
+    </div>
+    <div class="scard">
+      <h3>Data</h3>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <button class="btn btn-g" onclick="exportD()" style="text-align:left">⬇ Export JSON</button>
+        <button class="btn btn-g" onclick="document.getElementById('imp-in').click()" style="text-align:left">⬆ Import JSON</button>
+        <input type="file" id="imp-in" accept=".json" class="hidden" onchange="importD(event)">
+        <hr>
+        <button class="btn btn-d" onclick="clearAll()" style="text-align:left">✕ Clear All</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ═══ EDIT MODAL ═══ -->
+<div class="modal-bg hidden" id="edit-modal">
+  <div class="modal">
+    <h3>Edit Task</h3>
+    <input type="hidden" id="em-id">
+    <div class="fl"><label>Name</label><input class="fi" type="text" id="em-name"></div>
+    <div class="frow">
+      <div class="fl"><label>Completed On</label><input class="fi" type="date" id="em-date"></div>
+      <div class="fl"><label>Exam Date <span style="color:var(--dim);font-size:10px">(optional)</span></label><input class="fi" type="date" id="em-exam"></div>
+    </div>
+    <div class="fl">
+      <label>Pace</label>
+      <select class="fsel" id="em-pace">
+        <option value="fast">⚡ Intense (n²)</option>
+        <option value="medium">🎯 Balanced (300·(n/15)²)</option>
+        <option value="slow">🌿 Relaxed (custom)</option>
+      </select>
+    </div>
+    <div class="fl" id="em-rescheduled-note" style="display:none">
+      <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:var(--r);padding:10px;font-size:12px;color:var(--amber)">
+        ⚠ Changing the completion date will recalculate all revision dates. Previously completed revisions will be reset.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-p" onclick="saveEdit()">Save Changes</button>
+      <button class="btn btn-g" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-d" style="margin-left:auto" onclick="deleteTaskFromModal()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// PACE DEFINITIONS
+// ══════════════════════════════════════════
+const PACES = {
+  fast: {
+    label:'Intense',
+    // n² from base date
+    fn: n => n * n,
+    preview: n => Array.from({length:Math.min(n,5)},(_,i)=>(i+1)**2)
+  },
+  medium: {
+    label:'Balanced',
+    // FLOOR(300 * (n/15)^2) from base date
+    fn: n => Math.floor(300 * Math.pow(n/15, 2)),
+    preview: n => Array.from({length:Math.min(n,5)},(_,i)=>Math.floor(300*Math.pow((i+1)/15,2)))
+  },
+  slow: {
+    label:'Relaxed',
+    // exponential doubling, comfortable spacing: 3,7,14,30,60
+    fn: n => [3,7,14,30,60,90,120][Math.min(n-1,6)],
+    preview: n => Array.from({length:Math.min(n,5)},(_,i)=>[3,7,14,30,60,90,120][Math.min(i,6)])
+  }
+};
+
+const NOTIF_TIMES = ['6:00 AM','9:00 AM','12:00 PM','3:00 PM','6:00 PM','9:00 PM'];
+const LS = 'revos_v2';
+let tasksView = 'tasks';
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let S = {
+  tasks:[],
+  completions:{},
+  settings:{ activeTimes:['9:00 AM','6:00 PM'], showMissed:true, nightCheckin:true }
+};
+
+function save(){ localStorage.setItem(LS, JSON.stringify(S)); }
+function load(){
+  try{ const d=localStorage.getItem(LS); if(d) S=JSON.parse(d); }catch(e){}
+  // migrate old data
+  if(!S.settings) S.settings={ activeTimes:['9:00 AM','6:00 PM'], showMissed:true, nightCheckin:true };
+}
+
+// ══════════════════════════════════════════
+// DATE HELPERS
+// ══════════════════════════════════════════
+const todayStr = ()=>new Date().toISOString().slice(0,10);
+function addDays(s,n){
+  const d=new Date(s+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10);
+}
+function daysBetween(a,b){
+  return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);
+}
+function fmt(s){ return new Date(s+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'}); }
+function fmtL(s){ return new Date(s+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
+function isToday(s){ return s===todayStr(); }
+function isPast(s){ return s<todayStr(); }
+
+// ══════════════════════════════════════════
+// REVISION LOGIC
+// ══════════════════════════════════════════
+function getRevDates(task){
+  const pace=PACES[task.pace]||PACES.fast;
+  const dates=[];
+  for(let n=1;n<=task.maxN;n++){
+    const offset=pace.fn(n);
+    const date=addDays(task.completedOn, offset);
+    dates.push({n, date, offset});
+  }
+  return dates;
+}
+
+function calcMaxRevisions(task){
+  if(!task.examDate) return task.maxN;
+  const pace=PACES[task.pace]||PACES.fast;
+  let max=0;
+  for(let n=1;n<=20;n++){
+    const d=addDays(task.completedOn, pace.fn(n));
+    if(d<=task.examDate) max=n; else break;
+  }
+  return Math.max(1,max);
+}
+
+// ══════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════
+function nav(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-pill button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('nb-'+name).classList.add('active');
+  if(name==='today') renderToday();
+  if(name==='tasks'){ renderTasks(); }
+  if(name==='add'){ resetAdd(); }
+  if(name==='completed') renderCompleted();
+  if(name==='settings') renderSettings();
+}
+
+// ══════════════════════════════════════════
+// TODAY
+// ══════════════════════════════════════════
+function renderToday(){
+  const today=todayStr();
+  document.getElementById('today-label').textContent=fmtL(today);
+  let due=[],missed=[],done=[];
+
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{
+      const key=task.id+'_'+rev.n;
+      const isDone=!!S.completions[key];
+      if(rev.date===today){
+        if(isDone) done.push({task,rev,key});
+        else due.push({task,rev,key});
+      } else if(rev.date<today && !isDone && S.settings.showMissed){
+        missed.push({task,rev,key});
+      }
+    });
+  });
+
+  document.getElementById('st-due').textContent=due.length;
+  document.getElementById('st-done').textContent=done.length;
+  document.getElementById('st-miss').textContent=missed.length;
+  document.getElementById('st-total').textContent=S.tasks.length;
+
+  // badge
+  const badge=document.getElementById('badge-today');
+  const tot=due.length+missed.length;
+  badge.textContent=tot; badge.classList.toggle('hidden',tot===0);
+
+  // missed
+  const ms=document.getElementById('today-missed-sec');
+  ms.innerHTML='';
+  if(missed.length){
+    ms.innerHTML='<div class="sec">Missed from previous days</div>';
+    missed.forEach(o=>{ms.appendChild(makeTR(o,'missed'));});
+  }
+
+  // due
+  const ds=document.getElementById('today-due-sec');
+  ds.innerHTML='';
+  if(due.length){
+    ds.innerHTML='<div class="sec">Due today</div>';
+    due.forEach(o=>{ds.appendChild(makeTR(o,'due'));});
+  } else {
+    ds.innerHTML='<div class="sec">Due today</div><div class="empty"><div class="big">◌</div>Nothing due today!</div>';
+  }
+
+  // completed
+  const cs=document.getElementById('today-comp-sec');
+  cs.innerHTML='';
+  if(done.length){
+    cs.innerHTML='<div class="sec">Completed today</div>';
+    done.forEach(o=>{cs.appendChild(makeTR(o,'done'));});
+  }
+}
+
+function makeTR({task,rev,key},variant){
+  const div=document.createElement('div');
+  div.className='tr'+(variant==='missed'?' missed':variant==='done'?' done-row':'');
+  const isDone=!!S.completions[key];
+  const paceColor=task.pace==='fast'?'ch':task.pace==='slow'?'co':'sc2';
+  div.innerHTML=`
+    <button class="chk${isDone?' on':''}" onclick="toggleDone('${key}')">${isDone?'✓':''}</button>
+    <div class="ti">
+      <div class="tn">${esc(task.name)}</div>
+      <div class="tm">Rev #${rev.n} · +${rev.offset}d from ${fmt(task.completedOn)}${variant==='missed'?' · was due '+fmt(rev.date):''}</div>
+    </div>
+    <span class="tb ${paceColor}">${PACES[task.pace]?.label||'?'}</span>
+    <span class="rb">#${rev.n}</span>
+  `;
+  return div;
+}
+
+function toggleDone(key){
+  S.completions[key]=!S.completions[key];
+  save(); renderToday();
+  toast(S.completions[key]?'✓ Marked done':'Unmarked');
+}
+
+// ══════════════════════════════════════════
+// TASKS VIEW
+// ══════════════════════════════════════════
+function setTasksView(v){
+  tasksView=v;
+  document.getElementById('vsb-tasks').classList.toggle('active',v==='tasks');
+  document.getElementById('vsb-sched').classList.toggle('active',v==='sched');
+  document.getElementById('tv-tasks').classList.toggle('hidden',v!=='tasks');
+  document.getElementById('tv-sched').classList.toggle('hidden',v!=='sched');
+  if(v==='sched') renderFlatSchedule();
+  else renderTasksList();
+}
+
+function renderTasks(){
+  const label=document.getElementById('tasks-count-label');
+  label.textContent=S.tasks.length+' tasks';
+  if(tasksView==='tasks') renderTasksList();
+  else renderFlatSchedule();
+}
+
+function renderTasksList(){
+  const el=document.getElementById('tv-tasks');
+  el.innerHTML='';
+  if(!S.tasks.length){
+    el.innerHTML='<div class="empty"><div class="big">◌</div>No tasks yet. Hit + Add.</div>';
+    return;
+  }
+  S.tasks.forEach(task=>{ el.appendChild(makeExpandCard(task)); });
+}
+
+function makeExpandCard(task){
+  const today=todayStr();
+  const revs=getRevDates(task);
+  const done=revs.filter(r=>!!S.completions[task.id+'_'+r.n]).length;
+  const wrap=document.createElement('div');
+  wrap.className='task-expand';
+  wrap.id='texp-'+task.id;
+
+  const paceColor=task.pace==='fast'?'ch':task.pace==='slow'?'co':'sc2';
+  const doneCount=`${done}/${revs.length}`;
+  const examStr=task.examDate?` · exam ${fmt(task.examDate)}`:'';
+
+  wrap.innerHTML=`
+    <div class="te-header" onclick="toggleExpand('${task.id}')">
+      <span class="te-arrow" id="arr-${task.id}">▶</span>
+      <div class="ti">
+        <div class="tn">${esc(task.name)}</div>
+        <div class="tm">Done: ${fmt(task.completedOn)}${examStr} · Revisions: ${doneCount}</div>
+      </div>
+      <span class="tb ${paceColor}">${PACES[task.pace]?.label||'?'}</span>
+      <div class="row-actions" onclick="event.stopPropagation()">
+        <button class="ia" onclick="openEdit('${task.id}')">Edit</button>
+        <button class="ia danger" onclick="deleteTask('${task.id}')">✕</button>
+      </div>
+    </div>
+    <div class="te-body" id="teb-${task.id}">
+      ${revs.map(rev=>{
+        const key=task.id+'_'+rev.n;
+        const isDone=!!S.completions[key];
+        const dt=rev.date;
+        const cls=isDone?'past':isToday(dt)?'today':isPast(dt)?'past':'future';
+        const statusStr=isDone
+          ?'<span style="color:var(--green);font-family:var(--mono);font-size:11px">✓ done</span>'
+          :isToday(dt)?'<span style="color:var(--accent);font-family:var(--mono);font-size:11px">◉ today</span>'
+          :isPast(dt)?'<span style="color:var(--red);font-family:var(--mono);font-size:11px">✗ missed</span>'
+          :'<span style="color:var(--muted);font-family:var(--mono);font-size:11px">○ upcoming</span>';
+        return `<div class="sched-row">
+          <span class="dp ${cls}">${fmt(dt)}</span>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--muted)">Rev #${rev.n} (+${rev.offset}d)</span>
+          ${statusStr}
+          <button class="ia" onclick="toggleDoneKey('${key}')" style="margin-left:8px">${isDone?'Unmark':'Mark done'}</button>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+  return wrap;
+}
+
+function toggleExpand(id){
+  const arr=document.getElementById('arr-'+id);
+  const body=document.getElementById('teb-'+id);
+  const open=arr.classList.contains('open');
+  arr.classList.toggle('open',!open);
+  body.classList.toggle('open',!open);
+}
+
+function toggleDoneKey(key){
+  S.completions[key]=!S.completions[key];
+  save();
+  // re-render current task card
+  const taskId=key.split('_')[0];
+  const task=S.tasks.find(t=>t.id===taskId);
+  if(task){
+    const old=document.getElementById('texp-'+taskId);
+    const neu=makeExpandCard(task);
+    // preserve open state
+    if(document.getElementById('arr-'+taskId)?.classList.contains('open')){
+      neu.querySelector('.te-arrow').classList.add('open');
+      neu.querySelector('.te-body').classList.add('open');
+    }
+    old?.replaceWith(neu);
+  }
+  toast(S.completions[key]?'✓ Marked done':'Unmarked');
+}
+
+function deleteTask(id){
+  if(!confirm('Delete this task?')) return;
+  S.tasks=S.tasks.filter(t=>t.id!==id);
+  Object.keys(S.completions).filter(k=>k.startsWith(id+'_')).forEach(k=>delete S.completions[k]);
+  save(); renderTasks(); renderToday(); toast('Task deleted');
+}
+
+// ── FLAT SCHEDULE ──
+function renderFlatSchedule(){
+  const el=document.getElementById('tv-sched');
+  el.innerHTML='';
+  if(!S.tasks.length){ el.innerHTML='<div class="empty"><div class="big">◌</div>No tasks.</div>'; return; }
+
+  const rows=[];
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{
+      rows.push({date:rev.date,task,rev,key:task.id+'_'+rev.n});
+    });
+  });
+  rows.sort((a,b)=>a.date.localeCompare(b.date));
+
+  const today=todayStr();
+  const tbl=document.createElement('table');
+  tbl.className='sched-flat';
+  tbl.innerHTML=`<thead><tr><th>Date</th><th>Task</th><th>Pace</th><th>Revision</th><th>Status</th></tr></thead>`;
+  const tb=document.createElement('tbody');
+  rows.forEach(({date,task,rev,key})=>{
+    const isDone=!!S.completions[key];
+    const isTd=date===today, isPst=date<today;
+    const cls=isDone?'past':isTd?'today':isPst?'past':'future';
+    const st=isDone?'<span style="color:var(--green);font-family:var(--mono);font-size:11px">✓ done</span>'
+      :isTd?'<span style="color:var(--accent);font-family:var(--mono);font-size:11px">◉ today</span>'
+      :isPst?'<span style="color:var(--red);font-family:var(--mono);font-size:11px">✗ missed</span>'
+      :'<span style="color:var(--muted);font-family:var(--mono);font-size:11px">○ upcoming</span>';
+    const paceColor=task.pace==='fast'?'ch':task.pace==='slow'?'co':'sc2';
+    const tr=document.createElement('tr');
+    if(isTd) tr.className='trow';
+    tr.innerHTML=`
+      <td><span class="dp ${cls}">${fmt(date)}</span></td>
+      <td style="font-weight:500">${esc(task.name)}</td>
+      <td><span class="tb ${paceColor}">${PACES[task.pace]?.label||''}</span></td>
+      <td class="mono" style="color:var(--muted);font-size:11px">Rev #${rev.n} (+${rev.offset}d)</td>
+      <td>${st}</td>
+    `;
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  el.appendChild(tbl);
+}
+
+// ══════════════════════════════════════════
+// ADD TASK
+// ══════════════════════════════════════════
+let selPaceVal='fast';
+
+function resetAdd(){
+  document.getElementById('in-name').value='';
+  document.getElementById('in-date').value=todayStr();
+  document.getElementById('in-exam').value='';
+  selPaceVal='fast';
+  document.querySelectorAll('.pace-card').forEach(c=>{
+    c.classList.toggle('sel',c.dataset.pace==='fast');
+  });
+  updatePacePreviews();
+  updateExamPreview();
+  document.getElementById('in-exam').addEventListener('input',updateExamPreview);
+  document.getElementById('in-date').addEventListener('input',updateExamPreview);
+}
+
+function updatePacePreviews(){
+  Object.keys(PACES).forEach(k=>{
+    const days=PACES[k].preview(5);
+    const el=document.getElementById('pd-'+k);
+    if(el) el.textContent=days.join(', ')+'... days';
+  });
+}
+
+function selPace(card){
+  selPaceVal=card.dataset.pace;
+  document.querySelectorAll('.pace-card').forEach(c=>c.classList.toggle('sel',c===card));
+  updateExamPreview();
+}
+
+function updateExamPreview(){
+  const base=document.getElementById('in-date').value;
+  const exam=document.getElementById('in-exam').value;
+  const el=document.getElementById('exam-preview');
+  if(!exam||!base){ el.innerHTML='Select an exam date to see how many revisions fit'; return; }
+  if(exam<=base){ el.innerHTML='Exam date must be after completion date'; return; }
+  const pace=PACES[selPaceVal];
+  let count=0;
+  for(let n=1;n<=20;n++){
+    const d=addDays(base,pace.fn(n));
+    if(d<=exam) count=n; else break;
+  }
+  const days=daysBetween(base,exam);
+  el.innerHTML=`<span>${count} revision${count!==1?'s':''}</span> fit before exam (${days} days away)`;
+}
+
+function addTask(){
+  const name=document.getElementById('in-name').value.trim();
+  const date=document.getElementById('in-date').value;
+  const exam=document.getElementById('in-exam').value||null;
+  if(!name){toast('Enter a task name');return;}
+  if(!date){toast('Pick a completion date');return;}
+
+  // calculate maxN based on exam or default
+  let maxN=6;
+  if(exam&&exam>date){
+    const pace=PACES[selPaceVal];
+    maxN=0;
+    for(let n=1;n<=20;n++){
+      if(addDays(date,pace.fn(n))<=exam) maxN=n; else break;
+    }
+    maxN=Math.max(maxN,1);
+  }
+
+  const task={
+    id:'t'+Date.now(),
+    name, completedOn:date, examDate:exam,
+    pace:selPaceVal, maxN,
+    createdAt:new Date().toISOString()
+  };
+  S.tasks.push(task);
+  save();
+  toast('✓ Added: '+name);
+  nav('today');
+}
+
+// ══════════════════════════════════════════
+// EDIT MODAL
+// ══════════════════════════════════════════
+function openEdit(id){
+  const task=S.tasks.find(t=>t.id===id);
+  if(!task) return;
+  document.getElementById('em-id').value=id;
+  document.getElementById('em-name').value=task.name;
+  document.getElementById('em-date').value=task.completedOn;
+  document.getElementById('em-exam').value=task.examDate||'';
+  document.getElementById('em-pace').value=task.pace;
+  document.getElementById('em-rescheduled-note').style.display='none';
+  document.getElementById('em-date').addEventListener('input',()=>{
+    document.getElementById('em-rescheduled-note').style.display='block';
+  },{once:true});
+  document.getElementById('edit-modal').classList.remove('hidden');
+}
+
+function closeModal(){ document.getElementById('edit-modal').classList.add('hidden'); }
+
+function saveEdit(){
+  const id=document.getElementById('em-id').value;
+  const task=S.tasks.find(t=>t.id===id);
+  if(!task) return;
+  const oldDate=task.completedOn;
+  const newDate=document.getElementById('em-date').value;
+  task.name=document.getElementById('em-name').value.trim()||task.name;
+  task.completedOn=newDate;
+  task.examDate=document.getElementById('em-exam').value||null;
+  task.pace=document.getElementById('em-pace').value;
+
+  // recalc maxN if exam date
+  if(task.examDate&&task.examDate>task.completedOn){
+    const pace=PACES[task.pace];
+    let mx=0;
+    for(let n=1;n<=20;n++){
+      if(addDays(task.completedOn,pace.fn(n))<=task.examDate) mx=n; else break;
+    }
+    task.maxN=Math.max(mx,1);
+  }
+
+  // if date changed, clear old completions
+  if(oldDate!==newDate){
+    Object.keys(S.completions).filter(k=>k.startsWith(id+'_')).forEach(k=>delete S.completions[k]);
+  }
+
+  save(); closeModal();
+  renderTasks(); renderToday();
+  toast('✓ Task updated');
+}
+
+function deleteTaskFromModal(){
+  const id=document.getElementById('em-id').value;
+  closeModal();
+  deleteTask(id);
+}
+
+// ══════════════════════════════════════════
+// COMPLETED
+// ══════════════════════════════════════════
+function renderCompleted(){
+  const list=document.getElementById('comp-list');
+  list.innerHTML='';
+  const items=[];
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{
+      const key=task.id+'_'+rev.n;
+      if(S.completions[key]) items.push({task,rev,key});
+    });
+  });
+  document.getElementById('comp-label').textContent=items.length+' completed revisions';
+  if(!items.length){
+    list.innerHTML='<div class="empty"><div class="big">✓</div>No completed revisions yet.</div>';
+    return;
+  }
+  // group by task
+  const byTask={};
+  items.forEach(i=>{
+    if(!byTask[i.task.id]) byTask[i.task.id]={task:i.task,revs:[]};
+    byTask[i.task.id].revs.push(i);
+  });
+  Object.values(byTask).forEach(({task,revs})=>{
+    const sec=document.createElement('div');
+    sec.innerHTML=`<div class="sec">${esc(task.name)}</div>`;
+    revs.forEach(({rev,key})=>{
+      const d=document.createElement('div');
+      d.className='comp-card';
+      d.innerHTML=`
+        <div class="comp-check">✓</div>
+        <div class="ti">
+          <div class="tn">Rev #${rev.n}</div>
+          <div class="tm">Due: ${fmt(rev.date)} · +${rev.offset}d from ${fmt(task.completedOn)}</div>
+        </div>
+        <button class="ia" onclick="toggleDoneKey('${key}');renderCompleted()">Unmark</button>
+      `;
+      sec.appendChild(d);
+    });
+    list.appendChild(sec);
+  });
+}
+
+// ══════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════
+function renderSettings(){
+  const chips=document.getElementById('time-chips');
+  chips.innerHTML='';
+  NOTIF_TIMES.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='tc'+(S.settings.activeTimes.includes(t)?' on':'');
+    b.textContent=t; b.onclick=()=>{
+      const i=S.settings.activeTimes.indexOf(t);
+      if(i>=0) S.settings.activeTimes.splice(i,1); else S.settings.activeTimes.push(t);
+      save(); renderSettings();
+    };
+    chips.appendChild(b);
+  });
+  document.getElementById('tog-missed').className='tog'+(S.settings.showMissed?' on':'');
+  document.getElementById('tog-night').className='tog'+(S.settings.nightCheckin?' on':'');
+  updateNotifUI();
+}
+
+function togSet(key,btnId){
+  S.settings[key]=!S.settings[key];
+  save(); renderSettings();
+}
+
+// ── NOTIFICATIONS ──
+// The fix: keep a reference to the scheduled timeouts, and
+// re-request permission properly by calling Notification.requestPermission()
+// only when the page is in focus (some browsers block it otherwise)
+let notifTimers=[];
+
+async function enableNotif(){
+  if(!('Notification' in window)){toast('Notifications not supported');return;}
+  // Must be called from a user gesture — this function IS called from onclick, so it's fine
+  let perm=Notification.permission;
+  if(perm==='default'){
+    perm=await Notification.requestPermission();
+  }
+  if(perm==='granted'){
+    scheduleNotifs();
+    updateNotifUI();
+    save();
+    toast('✓ Notifications enabled');
+  } else if(perm==='denied'){
+    toast('Blocked — enable in browser Site Settings');
+  }
+}
+
+function scheduleNotifs(){
+  notifTimers.forEach(clearTimeout);
+  notifTimers=[];
+  if(Notification.permission!=='granted') return;
+  const now=new Date();
+  S.settings.activeTimes.forEach(ts=>{
+    const [tp,mer]=ts.split(' ');
+    let [h,m]=tp.split(':').map(Number);
+    if(mer==='PM'&&h!==12) h+=12;
+    if(mer==='AM'&&h===12) h=0;
+    const t=new Date(now);
+    t.setHours(h,m,0,0);
+    if(t<=now) t.setDate(t.getDate()+1);
+    const ms=t-now;
+    const id=setTimeout(()=>{ fireNotif(ts); scheduleNotifs(); }, ms);
+    notifTimers.push(id);
+  });
+}
+
+function fireNotif(label){
+  const today=todayStr();
+  let due=0,missed=0;
+  S.tasks.forEach(task=>{
+    getRevDates(task).forEach(rev=>{
+      const key=task.id+'_'+rev.n;
+      if(!S.completions[key]){
+        if(rev.date===today) due++;
+        else if(rev.date<today) missed++;
+      }
+    });
+  });
+  if(due+missed===0) return;
+  let body='';
+  if(due) body+=due+' revision'+(due>1?'s':'')+' due today';
+  if(missed) body+=(body?' · ':'')+missed+' missed';
+  new Notification('RevisionOS — '+label,{body, icon:makeIcon()});
+}
+
+function testNotif(){
+  if(Notification.permission!=='granted'){ enableNotif(); return; }
+  new Notification('RevisionOS — Test',{body:'Notifications are working!', icon:makeIcon()});
+  toast('Test notification sent');
+}
+
+function makeIcon(){
+  return 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="%234f9cf9"/><text x="16" y="23" text-anchor="middle" font-size="20" fill="white">◈</text></svg>';
+}
+
+function updateNotifUI(){
+  const granted=Notification.permission==='granted';
+  const denied=Notification.permission==='denied';
+  document.getElementById('ns-dot').className='nsdot'+(granted?' on':'');
+  document.getElementById('ns-text').textContent=
+    granted?'Active — notifications scheduled':
+    denied?'Blocked — check browser site settings':
+    'Not enabled — click Enable';
+  document.getElementById('notif-btn').textContent=
+    granted?'Re-schedule Notifications':'Enable Notifications';
+}
+
+// ── DATA ──
+function exportD(){
+  const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='revos_backup.json'; a.click();
+  toast('Exported');
+}
+function importD(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(!d.tasks) throw 0;
+      S=d; save(); nav('today'); toast('✓ Imported '+S.tasks.length+' tasks');
+    }catch{ toast('Invalid file'); }
+  };
+  r.readAsText(f);
+}
+function clearAll(){
+  if(!confirm('Delete everything?')) return;
+  S.tasks=[]; S.completions={};
+  save(); nav('today'); toast('Cleared');
+}
+
+// ── UTILS ──
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('show'); clearTimeout(t._t);
+  t._t=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+load();
+updatePacePreviews();
+document.getElementById('in-date').value=todayStr();
+document.getElementById('in-exam').addEventListener('input',updateExamPreview);
+document.getElementById('in-date').addEventListener('input',updateExamPreview);
+renderToday();
+if(Notification.permission==='granted') scheduleNotifs();
+updateNotifUI();
+
+// Night check-in
+if(S.settings.nightCheckin){
+  const now=new Date(), t=new Date(now); t.setHours(21,0,0,0);
+  if(t>now){
+    setTimeout(()=>{
+      if(Notification.permission!=='granted') return;
+      const today=todayStr();
+      let p=0;
+      S.tasks.forEach(task=>{ getRevDates(task).forEach(r=>{ if(r.date===today&&!S.completions[task.id+'_'+r.n]) p++; }); });
+      if(p>0) new Notification('RevisionOS — Night Check-in',{body:p+' revision'+(p>1?'s':'')+' unmarked today. Review before sleeping!'});
+    }, t-now);
+  }
+}
+</script>
+</body>
+</html>

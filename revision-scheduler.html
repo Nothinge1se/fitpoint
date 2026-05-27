@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RevisionOS — Spaced Repetition Scheduler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f12;
+    --surface: #161a20;
+    --surface2: #1e2430;
+    --border: #2a3040;
+    --border2: #3a4560;
+    --text: #e8edf5;
+    --muted: #7a8599;
+    --accent: #4f9cf9;
+    --accent2: #a78bfa;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --mono: 'Space Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ── LAYOUT ── */
+  .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky; top: 0; height: 100vh;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .main { padding: 32px; overflow-x: hidden; }
+
+  /* ── SIDEBAR ── */
+  .logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .logo h1 { font-family: var(--mono); font-size: 15px; color: var(--accent); letter-spacing: 0.05em; }
+  .logo span { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+  .nav-section { padding: 0 12px; margin-bottom: 8px; }
+  .nav-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0 8px; margin-bottom: 6px; }
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 9px 12px;
+    background: none; border: none; border-radius: 8px;
+    color: var(--muted); cursor: pointer; font-family: var(--sans); font-size: 13px;
+    text-align: left; transition: all 0.15s;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: rgba(79,156,249,0.12); color: var(--accent); }
+  .nav-btn .icon { font-size: 15px; width: 18px; text-align: center; }
+  .badge {
+    margin-left: auto; background: var(--red);
+    color: #fff; font-size: 10px; font-weight: 700;
+    padding: 2px 6px; border-radius: 99px; font-family: var(--mono);
+  }
+  .badge.green { background: var(--green); color: #0d0f12; }
+  .badge.amber { background: var(--amber); color: #0d0f12; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 20px 0;
+    border-top: 1px solid var(--border);
+  }
+  .notif-status { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); flex-shrink: 0; }
+  .dot.on { background: var(--green); }
+
+  /* ── VIEWS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── PAGE HEADERS ── */
+  .page-header { margin-bottom: 28px; }
+  .page-header h2 { font-size: 22px; font-weight: 600; }
+  .page-header p { color: var(--muted); margin-top: 4px; font-size: 13px; }
+
+  /* ── TODAY VIEW ── */
+  .today-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 32px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px;
+  }
+  .stat-card .label { font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .stat-card .value { font-family: var(--mono); font-size: 28px; font-weight: 700; }
+  .stat-card .value.accent { color: var(--accent); }
+  .stat-card .value.green { color: var(--green); }
+  .stat-card .value.amber { color: var(--amber); }
+  .stat-card .value.red { color: var(--red); }
+
+  .section-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .task-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+  .task-row {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+    display: flex; align-items: center; gap: 14px;
+    transition: border-color 0.15s;
+  }
+  .task-row:hover { border-color: var(--border2); }
+  .task-row.done { opacity: 0.5; }
+  .task-row.missed { border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.05); }
+
+  .task-check {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid var(--border2);
+    background: none; cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .task-check:hover { border-color: var(--green); }
+  .task-check.checked { background: var(--green); border-color: var(--green); }
+  .task-check.checked::after { content: '✓'; color: #0d0f12; font-size: 11px; font-weight: 700; }
+
+  .task-info { flex: 1; }
+  .task-name { font-weight: 500; font-size: 14px; }
+  .task-meta { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+
+  .task-type {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 99px;
+  }
+  .type-chapter { background: rgba(167,139,250,0.15); color: var(--accent2); }
+  .type-sub { background: rgba(79,156,249,0.12); color: var(--accent); }
+  .type-missed { background: rgba(248,113,113,0.15); color: var(--red); }
+
+  .rev-badge {
+    font-family: var(--mono); font-size: 11px;
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 3px 8px; border-radius: 6px; color: var(--muted); flex-shrink: 0;
+  }
+
+  /* ── ADD TASK VIEW ── */
+  .form-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 24px; max-width: 560px;
+  }
+  .form-row { margin-bottom: 18px; }
+  .form-label { display: block; font-size: 12px; font-weight: 500; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 7px; text-transform: uppercase; }
+  .form-input, .form-select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; padding: 10px 14px;
+    font-family: var(--sans); font-size: 14px;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .form-input:focus, .form-select:focus { outline: none; border-color: var(--accent); }
+  .form-select option { background: var(--bg); }
+
+  .logic-preview {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px; margin-top: 8px;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+  }
+  .logic-preview span { color: var(--accent2); }
+
+  .btn {
+    padding: 10px 20px; border-radius: 8px; border: none;
+    font-family: var(--sans); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-primary { background: var(--accent); color: #0d0f12; }
+  .btn-primary:hover { background: #70b0fa; }
+  .btn-ghost {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+  .btn-danger { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+  .btn-danger:hover { background: rgba(248,113,113,0.2); }
+
+  /* ── SCHEDULE VIEW ── */
+  .schedule-table { width: 100%; border-collapse: collapse; }
+  .schedule-table th {
+    text-align: left; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted); padding: 0 12px 10px; border-bottom: 1px solid var(--border);
+  }
+  .schedule-table td {
+    padding: 10px 12px; border-bottom: 1px solid var(--border);
+    font-size: 13px; vertical-align: middle;
+  }
+  .schedule-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .schedule-table tr.today-row td { background: rgba(79,156,249,0.05); }
+
+  .date-pill {
+    font-family: var(--mono); font-size: 11px;
+    padding: 3px 8px; border-radius: 6px;
+    display: inline-block;
+  }
+  .date-past { background: rgba(255,255,255,0.05); color: var(--muted); }
+  .date-today { background: rgba(79,156,249,0.15); color: var(--accent); }
+  .date-future { background: rgba(52,211,153,0.1); color: var(--green); }
+
+  /* ── SETTINGS VIEW ── */
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 640px; }
+  .settings-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    grid-column: span 2;
+  }
+  .settings-card.half { grid-column: span 1; }
+  .settings-card h3 { font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+
+  .time-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .time-chip {
+    padding: 5px 12px; border-radius: 99px;
+    border: 1px solid var(--border); background: none;
+    color: var(--muted); font-size: 12px; font-family: var(--mono);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .time-chip.active { background: rgba(79,156,249,0.12); border-color: var(--accent); color: var(--accent); }
+  .time-chip:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-label { font-size: 13px; }
+  .toggle-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .toggle {
+    width: 38px; height: 22px; border-radius: 99px;
+    background: var(--border2); cursor: pointer;
+    position: relative; transition: background 0.2s; border: none; flex-shrink: 0;
+  }
+  .toggle::after {
+    content: ''; width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; position: absolute; top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+  .toggle.on { background: var(--green); }
+  .toggle.on::after { transform: translateX(16px); }
+
+  /* ── ALL TASKS ── */
+  .task-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 20px;
+    display: flex; align-items: flex-start; gap: 16px;
+    margin-bottom: 10px; transition: border-color 0.15s;
+  }
+  .task-card:hover { border-color: var(--border2); }
+  .task-card-body { flex: 1; }
+  .task-card-name { font-size: 15px; font-weight: 500; }
+  .task-card-sub { font-size: 12px; color: var(--muted); margin-top: 3px; font-family: var(--mono); }
+  .task-card-revs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .rev-dot {
+    font-family: var(--mono); font-size: 11px;
+    padding: 3px 9px; border-radius: 6px; border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .rev-dot.done { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.3); color: var(--green); }
+  .rev-dot.today { background: rgba(79,156,249,0.15); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    color: var(--muted); font-family: var(--mono); font-size: 13px;
+  }
+  .empty-state .big { font-size: 40px; margin-bottom: 12px; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2); border: 1px solid var(--border2);
+    color: var(--text); padding: 12px 18px; border-radius: 10px;
+    font-size: 13px; opacity: 0; transform: translateY(10px);
+    transition: all 0.25s; pointer-events: none; z-index: 9999;
+    max-width: 300px;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── MISC ── */
+  .flex { display: flex; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .text-muted { color: var(--muted); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+  @media (max-width: 720px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; padding: 12px; }
+    .logo { padding: 0; border: none; margin: 0; flex: 1; }
+    .nav-section { display: flex; gap: 4px; padding: 0; }
+    .nav-label { display: none; }
+    .sidebar-footer { display: none; }
+    .main { padding: 20px; }
+    .settings-grid { grid-template-columns: 1fr; }
+    .settings-card.half { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <h1>REVISION_OS</h1>
+    <span>v1.0 — spaced repetition</span>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Views</div>
+    <button class="nav-btn active" onclick="showView('today')" id="nav-today">
+      <span class="icon">◈</span> Today
+      <span class="badge" id="badge-today" style="display:none">0</span>
+    </button>
+    <button class="nav-btn" onclick="showView('all')" id="nav-all">
+      <span class="icon">▦</span> All Tasks
+    </button>
+    <button class="nav-btn" onclick="showView('schedule')" id="nav-schedule">
+      <span class="icon">▤</span> Schedule
+    </button>
+  </div>
+
+  <div class="nav-section" style="margin-top:8px">
+    <div class="nav-label">Actions</div>
+    <button class="nav-btn" onclick="showView('add')" id="nav-add">
+      <span class="icon">+</span> Add Task
+    </button>
+    <button class="nav-btn" onclick="showView('settings')" id="nav-settings">
+      <span class="icon">⚙</span> Settings
+    </button>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="notif-status">
+      <div class="dot" id="notif-dot"></div>
+      <span id="notif-text">Notifications off</span>
+    </div>
+    <div style="font-size:11px; color:var(--muted); margin-top:6px; font-family:var(--mono)" id="notif-count"></div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TODAY VIEW -->
+  <div class="view active" id="view-today">
+    <div class="page-header">
+      <h2>Today's Revisions</h2>
+      <p id="today-date-label"></p>
+    </div>
+
+    <div class="today-grid" id="stats-grid">
+      <div class="stat-card"><div class="label">Due Today</div><div class="value accent" id="stat-due">0</div></div>
+      <div class="stat-card"><div class="label">Completed</div><div class="value green" id="stat-done">0</div></div>
+      <div class="stat-card"><div class="label">Missed</div><div class="value red" id="stat-missed">0</div></div>
+      <div class="stat-card"><div class="label">Total Tasks</div><div class="value" id="stat-total">0</div></div>
+    </div>
+
+    <div class="section-title">Missed from Previous Days</div>
+    <div class="task-list" id="missed-list">
+      <div class="empty-state" id="missed-empty"><span>✓ No missed revisions</span></div>
+    </div>
+
+    <div class="section-title">Due Today</div>
+    <div class="task-list" id="today-list">
+      <div class="empty-state" id="today-empty">
+        <div class="big">◌</div>
+        <div>No revisions scheduled for today</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD TASK VIEW -->
+  <div class="view" id="view-add">
+    <div class="page-header">
+      <h2>Add New Task</h2>
+      <p>Track a chapter or sub-chapter completion</p>
+    </div>
+
+    <div class="form-card">
+      <div class="form-row">
+        <label class="form-label">Task Name / Chapter</label>
+        <input class="form-input" type="text" id="input-name" placeholder="e.g. Chapter 5 — Organic Chemistry">
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="input-type" onchange="updateLogicPreview()">
+          <option value="chapter">Chapter — n² logic</option>
+          <option value="sub">Sub-chapter — FLOOR(300·(n/15)²) logic</option>
+        </select>
+        <div class="logic-preview" id="logic-preview">
+          Revisions at: <span id="preview-days">1, 4, 9, 16 days...</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Completed On</label>
+        <input class="form-input" type="date" id="input-date">
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Max Revisions (n)</label>
+        <input class="form-input" type="number" id="input-n" value="4" min="1" max="20" oninput="updateLogicPreview()">
+      </div>
+
+      <div class="flex gap-8" style="margin-top:8px">
+        <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+        <button class="btn btn-ghost" onclick="showView('today')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALL TASKS VIEW -->
+  <div class="view" id="view-all">
+    <div class="page-header">
+      <h2>All Tasks</h2>
+      <p id="all-task-count"></p>
+    </div>
+    <div id="all-tasks-list">
+      <div class="empty-state">
+        <div class="big">◌</div>
+        <div>No tasks yet. Add one to get started.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCHEDULE VIEW -->
+  <div class="view" id="view-schedule">
+    <div class="page-header">
+      <h2>Full Schedule</h2>
+      <p>Upcoming revision dates across all tasks</p>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="schedule-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Task</th>
+            <th>Type</th>
+            <th>Revision #</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="schedule-body"></tbody>
+      </table>
+    </div>
+    <div class="empty-state" id="schedule-empty" style="display:none">
+      <div class="big">◌</div>
+      <div>No upcoming revisions</div>
+    </div>
+  </div>
+
+  <!-- SETTINGS VIEW -->
+  <div class="view" id="view-settings">
+    <div class="page-header">
+      <h2>Settings</h2>
+      <p>Configure notifications and preferences</p>
+    </div>
+
+    <div class="settings-grid">
+      <div class="settings-card">
+        <h3>Notification Times</h3>
+        <p style="font-size:12px; color:var(--muted); margin-bottom:8px">Select times to receive daily revision reminders. Your browser must allow notifications.</p>
+        <div class="time-chips" id="time-chips"></div>
+        <div style="margin-top:14px; display:flex; gap:8px">
+          <button class="btn btn-primary" onclick="enableNotifications()">Enable Notifications</button>
+          <button class="btn btn-ghost" onclick="testNotification()">Test</button>
+        </div>
+      </div>
+
+      <div class="settings-card half">
+        <h3>Preferences</h3>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Show missed tasks</div>
+            <div class="toggle-sub">Show overdue items at top</div>
+          </div>
+          <button class="toggle on" id="toggle-missed" onclick="toggleSetting('showMissed')"></button>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Night check-in</div>
+            <div class="toggle-sub">Prompt to mark done at 9pm</div>
+          </div>
+          <button class="toggle on" id="toggle-checkin" onclick="toggleSetting('nightCheckin')"></button>
+        </div>
+      </div>
+
+      <div class="settings-card half">
+        <h3>Data</h3>
+        <div style="display:flex; flex-direction:column; gap:8px">
+          <button class="btn btn-ghost" onclick="exportData()" style="width:100%; text-align:left">⬇ Export JSON</button>
+          <button class="btn btn-ghost" onclick="importClick()" style="width:100%; text-align:left">⬆ Import JSON</button>
+          <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)">
+          <hr>
+          <button class="btn btn-danger" onclick="clearAll()" style="width:100%; text-align:left">✕ Clear All Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── STATE ──
+const TIMES = ['6:00 AM','9:00 AM','12:00 PM','3:00 PM','6:00 PM','9:00 PM'];
+const LS_KEY = 'revos_v1';
+
+let state = {
+  tasks: [],
+  completions: {},  // taskId_revN: true/false
+  settings: {
+    activeTimes: ['9:00 AM', '6:00 PM'],
+    showMissed: true,
+    nightCheckin: true
+  }
+};
+
+// ── PERSISTENCE ──
+function save() {
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+}
+
+function load() {
+  try {
+    const d = localStorage.getItem(LS_KEY);
+    if (d) state = JSON.parse(d);
+  } catch(e) {}
+}
+
+// ── DATE HELPERS ──
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+function daysBetween(a, b) {
+  const d1 = new Date(a + 'T00:00:00');
+  const d2 = new Date(b + 'T00:00:00');
+  return Math.round((d2 - d1) / 86400000);
+}
+
+function fmtDate(s) {
+  const d = new Date(s + 'T00:00:00');
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function fmtShort(s) {
+  const d = new Date(s + 'T00:00:00');
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+
+// ── REVISION LOGIC ──
+function getRevisionDays(type, n, maxN) {
+  // type "chapter": offset = n^2 days from completion
+  // type "sub": offset = FLOOR(300 * (n/15)^2) from completion
+  if (type === 'chapter') return n * n;
+  if (type === 'sub') return Math.floor(300 * Math.pow(n / 15, 2));
+  return n * n;
+}
+
+function getRevisionDates(task) {
+  const dates = [];
+  for (let n = 1; n <= task.maxN; n++) {
+    const offset = getRevisionDays(task.type, n, task.maxN);
+    dates.push({ n, date: addDays(task.completedOn, offset), offset });
+  }
+  return dates;
+}
+
+// ── VIEWS ──
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  const nb = document.getElementById('nav-' + name);
+  if (nb) nb.classList.add('active');
+
+  if (name === 'today') renderToday();
+  if (name === 'all') renderAll();
+  if (name === 'schedule') renderSchedule();
+  if (name === 'add') resetAddForm();
+  if (name === 'settings') renderSettings();
+}
+
+// ── TODAY ──
+function renderToday() {
+  const today = todayStr();
+  document.getElementById('today-date-label').textContent = fmtDate(today);
+
+  let due = [], missed = [], done = 0;
+
+  state.tasks.forEach(task => {
+    getRevisionDates(task).forEach(rev => {
+      const key = task.id + '_' + rev.n;
+      const isDone = !!state.completions[key];
+      if (rev.date === today) {
+        if (!isDone) due.push({ task, rev, key });
+        else done++;
+      } else if (rev.date < today && !isDone && state.settings.showMissed) {
+        missed.push({ task, rev, key });
+      }
+    });
+  });
+
+  document.getElementById('stat-due').textContent = due.length + done;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-missed').textContent = missed.length;
+  document.getElementById('stat-total').textContent = state.tasks.length;
+
+  // Badge
+  const badge = document.getElementById('badge-today');
+  const total = due.length + missed.length;
+  badge.textContent = total;
+  badge.style.display = total > 0 ? '' : 'none';
+
+  // Missed list
+  const ml = document.getElementById('missed-list');
+  const me = document.getElementById('missed-empty');
+  ml.innerHTML = '';
+  if (missed.length === 0) {
+    me.style.display = '';
+    ml.appendChild(me);
+  } else {
+    me.style.display = 'none';
+    missed.forEach(({ task, rev, key }) => {
+      ml.appendChild(makeTaskRow(task, rev, key, 'missed'));
+    });
+  }
+
+  // Today list
+  const tl = document.getElementById('today-list');
+  const te = document.getElementById('today-empty');
+  tl.innerHTML = '';
+  if (due.length === 0) {
+    te.style.display = '';
+    tl.appendChild(te);
+  } else {
+    te.style.display = 'none';
+    due.forEach(({ task, rev, key }) => {
+      tl.appendChild(makeTaskRow(task, rev, key, 'today'));
+    });
+  }
+}
+
+function makeTaskRow(task, rev, key, variant) {
+  const div = document.createElement('div');
+  div.className = 'task-row' + (variant === 'missed' ? ' missed' : '');
+  div.id = 'row-' + key;
+
+  const isDone = !!state.completions[key];
+
+  div.innerHTML = `
+    <button class="task-check ${isDone ? 'checked' : ''}" onclick="toggleComplete('${key}')" title="Mark done"></button>
+    <div class="task-info">
+      <div class="task-name">${escHtml(task.name)}</div>
+      <div class="task-meta">Completed: ${fmtShort(task.completedOn)} · Rev #${rev.n} · +${rev.offset}d</div>
+    </div>
+    <span class="task-type ${task.type === 'chapter' ? 'type-chapter' : 'type-sub'}">${task.type === 'chapter' ? 'Chapter' : 'Sub-ch'}</span>
+    <span class="rev-badge">#${rev.n}</span>
+  `;
+  if (variant === 'missed') {
+    div.querySelector('.task-meta').textContent += ` · Was due: ${fmtShort(rev.date)}`;
+  }
+  return div;
+}
+
+function toggleComplete(key) {
+  state.completions[key] = !state.completions[key];
+  save();
+  renderToday();
+  toast(state.completions[key] ? '✓ Marked complete' : 'Unmarked');
+}
+
+// ── ALL TASKS ──
+function renderAll() {
+  const today = todayStr();
+  const list = document.getElementById('all-tasks-list');
+  list.innerHTML = '';
+  document.getElementById('all-task-count').textContent = state.tasks.length + ' tasks tracked';
+
+  if (state.tasks.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="big">◌</div><div>No tasks yet.</div></div>';
+    return;
+  }
+
+  state.tasks.forEach(task => {
+    const revDates = getRevisionDates(task);
+    const div = document.createElement('div');
+    div.className = 'task-card';
+
+    const dots = revDates.map(rev => {
+      const key = task.id + '_' + rev.n;
+      const isDone = !!state.completions[key];
+      const cls = isDone ? 'done' : rev.date === today ? 'today' : '';
+      return `<span class="rev-dot ${cls}" title="${fmtShort(rev.date)}">#${rev.n} ${fmtShort(rev.date)}</span>`;
+    }).join('');
+
+    div.innerHTML = `
+      <div style="padding-top:2px">
+        <span class="task-type ${task.type === 'chapter' ? 'type-chapter' : 'type-sub'}">${task.type === 'chapter' ? 'CH' : 'SUB'}</span>
+      </div>
+      <div class="task-card-body">
+        <div class="task-card-name">${escHtml(task.name)}</div>
+        <div class="task-card-sub">Completed: ${fmtDate(task.completedOn)} · ${task.maxN} revisions</div>
+        <div class="task-card-revs">${dots}</div>
+      </div>
+      <button class="btn btn-danger" onclick="deleteTask('${task.id}')" style="padding:7px 10px; font-size:12px">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function deleteTask(id) {
+  if (!confirm('Delete this task and all its completion data?')) return;
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  Object.keys(state.completions).forEach(k => { if (k.startsWith(id + '_')) delete state.completions[k]; });
+  save();
+  renderAll();
+  toast('Task deleted');
+}
+
+// ── SCHEDULE ──
+function renderSchedule() {
+  const today = todayStr();
+  const rows = [];
+
+  state.tasks.forEach(task => {
+    getRevisionDates(task).forEach(rev => {
+      const key = task.id + '_' + rev.n;
+      rows.push({ date: rev.date, task, rev, key });
+    });
+  });
+
+  rows.sort((a, b) => a.date.localeCompare(b.date));
+
+  const tbody = document.getElementById('schedule-body');
+  tbody.innerHTML = '';
+  const empty = document.getElementById('schedule-empty');
+
+  if (rows.length === 0) { empty.style.display = ''; return; }
+  empty.style.display = 'none';
+
+  rows.forEach(({ date, task, rev, key }) => {
+    const isDone = !!state.completions[key];
+    const isToday = date === today;
+    const isPast = date < today;
+    const tr = document.createElement('tr');
+    if (isToday) tr.className = 'today-row';
+
+    const dateCls = isPast ? 'date-past' : isToday ? 'date-today' : 'date-future';
+    const statusHtml = isDone
+      ? '<span style="color:var(--green);font-family:var(--mono);font-size:12px">✓ done</span>'
+      : isPast
+        ? '<span style="color:var(--red);font-family:var(--mono);font-size:12px">✗ missed</span>'
+        : isToday
+          ? '<span style="color:var(--accent);font-family:var(--mono);font-size:12px">◉ today</span>'
+          : '<span style="color:var(--muted);font-family:var(--mono);font-size:12px">○ upcoming</span>';
+
+    tr.innerHTML = `
+      <td><span class="date-pill ${dateCls}">${fmtShort(date)}</span></td>
+      <td style="font-weight:500">${escHtml(task.name)}</td>
+      <td><span class="task-type ${task.type === 'chapter' ? 'type-chapter' : 'type-sub'}">${task.type === 'chapter' ? 'Chapter' : 'Sub-ch'}</span></td>
+      <td style="font-family:var(--mono);color:var(--muted)">Rev #${rev.n} (+${rev.offset}d)</td>
+      <td>${statusHtml}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── ADD TASK ──
+function resetAddForm() {
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-type').value = 'chapter';
+  document.getElementById('input-date').value = todayStr();
+  document.getElementById('input-n').value = 4;
+  updateLogicPreview();
+}
+
+function updateLogicPreview() {
+  const type = document.getElementById('input-type').value;
+  const n = parseInt(document.getElementById('input-n').value) || 4;
+  const days = [];
+  for (let i = 1; i <= Math.min(n, 6); i++) {
+    days.push(getRevisionDays(type, i));
+  }
+  const prefix = type === 'chapter' ? 'n² : ' : 'FLOOR(300·(n/15)²) : ';
+  document.getElementById('preview-days').textContent = days.join(', ') + (n > 6 ? '...' : '') + ' days from completion';
+  document.querySelector('.logic-preview').innerHTML = `<span>${prefix}</span>${days.join(', ')}${n > 6 ? '...' : ''} days`;
+}
+
+function addTask() {
+  const name = document.getElementById('input-name').value.trim();
+  const type = document.getElementById('input-type').value;
+  const date = document.getElementById('input-date').value;
+  const maxN = parseInt(document.getElementById('input-n').value);
+
+  if (!name) { toast('Please enter a task name'); return; }
+  if (!date) { toast('Please pick a date'); return; }
+  if (!maxN || maxN < 1) { toast('Invalid revision count'); return; }
+
+  const task = {
+    id: 'task_' + Date.now(),
+    name, type, completedOn: date, maxN,
+    createdAt: new Date().toISOString()
+  };
+  state.tasks.push(task);
+  save();
+  toast('✓ Task added: ' + name);
+  showView('today');
+}
+
+// ── SETTINGS ──
+function renderSettings() {
+  // Time chips
+  const container = document.getElementById('time-chips');
+  container.innerHTML = '';
+  TIMES.forEach(t => {
+    const btn = document.createElement('button');
+    btn.className = 'time-chip' + (state.settings.activeTimes.includes(t) ? ' active' : '');
+    btn.textContent = t;
+    btn.onclick = () => toggleTime(t);
+    container.appendChild(btn);
+  });
+
+  // Toggles
+  document.getElementById('toggle-missed').className = 'toggle' + (state.settings.showMissed ? ' on' : '');
+  document.getElementById('toggle-checkin').className = 'toggle' + (state.settings.nightCheckin ? ' on' : '');
+
+  // Notif status
+  updateNotifStatus();
+}
+
+function toggleTime(t) {
+  const idx = state.settings.activeTimes.indexOf(t);
+  if (idx >= 0) state.settings.activeTimes.splice(idx, 1);
+  else state.settings.activeTimes.push(t);
+  save();
+  renderSettings();
+}
+
+function toggleSetting(key) {
+  state.settings[key] = !state.settings[key];
+  save();
+  renderSettings();
+}
+
+// ── NOTIFICATIONS ──
+let scheduledTimers = [];
+
+async function enableNotifications() {
+  if (!('Notification' in window)) { toast('Notifications not supported in this browser'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') {
+    scheduleNotifications();
+    updateNotifStatus();
+    toast('✓ Notifications enabled!');
+    save();
+  } else {
+    toast('Permission denied. Please allow notifications in browser settings.');
+  }
+}
+
+function scheduleNotifications() {
+  scheduledTimers.forEach(clearTimeout);
+  scheduledTimers = [];
+  if (Notification.permission !== 'granted') return;
+
+  const now = new Date();
+  state.settings.activeTimes.forEach(timeStr => {
+    const [timePart, meridiem] = timeStr.split(' ');
+    let [h, m] = timePart.split(':').map(Number);
+    if (meridiem === 'PM' && h !== 12) h += 12;
+    if (meridiem === 'AM' && h === 12) h = 0;
+
+    const target = new Date(now);
+    target.setHours(h, m, 0, 0);
+    if (target <= now) target.setDate(target.getDate() + 1);
+
+    const ms = target - now;
+    const t = setTimeout(() => {
+      fireNotification(timeStr);
+      scheduleNotifications(); // reschedule for next day
+    }, ms);
+    scheduledTimers.push(t);
+  });
+}
+
+function fireNotification(timeStr) {
+  const today = todayStr();
+  let due = 0, missed = 0;
+
+  state.tasks.forEach(task => {
+    getRevisionDates(task).forEach(rev => {
+      const key = task.id + '_' + rev.n;
+      if (!state.completions[key]) {
+        if (rev.date === today) due++;
+        else if (rev.date < today) missed++;
+      }
+    });
+  });
+
+  if (due + missed === 0) return;
+
+  let body = '';
+  if (due > 0) body += `${due} revision${due > 1 ? 's' : ''} due today`;
+  if (missed > 0) body += (body ? ' · ' : '') + `${missed} missed`;
+
+  new Notification('RevisionOS — ' + timeStr, {
+    body,
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="%234f9cf9"/><text x="16" y="23" text-anchor="middle" font-size="20" fill="white">◈</text></svg>'
+  });
+}
+
+function testNotification() {
+  if (Notification.permission !== 'granted') {
+    enableNotifications();
+    return;
+  }
+  new Notification('RevisionOS — Test', {
+    body: 'Notifications are working correctly!',
+  });
+  toast('Test notification sent!');
+}
+
+function updateNotifStatus() {
+  const dot = document.getElementById('notif-dot');
+  const text = document.getElementById('notif-text');
+  const count = document.getElementById('notif-count');
+  if (Notification.permission === 'granted') {
+    dot.className = 'dot on';
+    text.textContent = 'Notifications active';
+    count.textContent = state.settings.activeTimes.join(' · ');
+  } else {
+    dot.className = 'dot';
+    text.textContent = 'Notifications off';
+    count.textContent = 'Click Settings → Enable';
+  }
+}
+
+// ── DATA ──
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'revos_backup.json'; a.click();
+  URL.revokeObjectURL(url);
+  toast('Data exported');
+}
+
+function importClick() { document.getElementById('import-input').click(); }
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if (!d.tasks) { toast('Invalid file format'); return; }
+      state = d;
+      save();
+      renderToday();
+      toast('✓ Data imported: ' + state.tasks.length + ' tasks');
+    } catch { toast('Failed to parse JSON'); }
+  };
+  reader.readAsText(file);
+}
+
+function clearAll() {
+  if (!confirm('Delete ALL tasks and completion data? This cannot be undone.')) return;
+  state.tasks = [];
+  state.completions = {};
+  save();
+  showView('today');
+  toast('All data cleared');
+}
+
+// ── UTILS ──
+function escHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── INIT ──
+load();
+document.getElementById('input-date').value = todayStr();
+updateLogicPreview();
+renderToday();
+updateNotifStatus();
+
+// Auto-schedule notifications if permission already granted
+if (Notification.permission === 'granted') scheduleNotifications();
+
+// Night check-in
+function setupNightCheckin() {
+  if (!state.settings.nightCheckin) return;
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(21, 0, 0, 0);
+  if (target <= now) return;
+  setTimeout(() => {
+    if (Notification.permission === 'granted') {
+      const today = todayStr();
+      let pending = 0;
+      state.tasks.forEach(task => {
+        getRevisionDates(task).forEach(rev => {
+          if (rev.date === today && !state.completions[task.id + '_' + rev.n]) pending++;
+        });
+      });
+      if (pending > 0) {
+        new Notification('RevisionOS — Night Check-in', {
+          body: pending + ' revision' + (pending > 1 ? 's' : '') + ' still unfinished today. Mark them done!'
+        });
+      }
+    }
+  }, target - now);
+}
+setupNightCheckin();
+</script>
+</body>
+</html>
