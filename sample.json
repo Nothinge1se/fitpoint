@@ -1,0 +1,37 @@
+{
+"tasks": [
+{ "id": "phy_001", "name": "Electric Charges and Fields", "completedOn": "2026-05-20", "examDate": "2026-06-21", "pace": "fast", "maxN": 6, "tags": ["Physics"], "createdAt": "2026-05-20T10:00:00Z" },
+{ "id": "phy_002", "name": "Electrostatic Potential and Capacitance", "completedOn": "2026-05-22", "examDate": "2026-06-21", "pace": "fast", "maxN": 6, "tags": ["Physics"], "createdAt": "2026-05-22T10:00:00Z" },
+{ "id": "phy_003", "name": "Current Electricity: Circuit Analysis", "completedOn": "2026-05-25", "examDate": "2026-06-21", "pace": "medium", "maxN": 6, "tags": ["Physics"], "createdAt": "2026-05-25T10:00:00Z" },
+{ "id": "phy_004", "name": "Moving Charges and Magnetism", "completedOn": "2026-05-26", "examDate": "2026-06-21", "pace": "fast", "maxN": 8, "tags": ["Physics"], "createdAt": "2026-05-26T10:00:00Z" },
+{ "id": "chem_001", "name": "The Solid State", "completedOn": "2026-05-10", "examDate": "2026-06-21", "pace": "medium", "maxN": 6, "tags": ["Chemistry"], "createdAt": "2026-05-10T10:00:00Z" },
+{ "id": "chem_002", "name": "Solutions & Colligative Properties", "completedOn": "2026-05-12", "examDate": "2026-06-21", "pace": "fast", "maxN": 6, "tags": ["Chemistry"], "createdAt": "2026-05-12T10:00:00Z" },
+{ "id": "chem_003", "name": "Electrochemistry", "completedOn": "2026-05-14", "examDate": "2026-06-21", "pace": "medium", "maxN": 8, "tags": ["Chemistry"], "createdAt": "2026-05-14T10:00:00Z" },
+{ "id": "chem_004", "name": "Chemical Kinetics: Rate Laws", "completedOn": "2026-05-16", "examDate": "2026-06-21", "pace": "medium", "maxN": 6, "tags": ["Chemistry"], "createdAt": "2026-05-16T10:00:00Z" },
+{ "id": "math_001", "name": "Relations and Functions", "completedOn": "2026-05-11", "examDate": "2026-06-21", "pace": "medium", "maxN": 6, "tags": ["Mathematics"], "createdAt": "2026-05-11T10:00:00Z" },
+{ "id": "math_002", "name": "Inverse Trigonometric Functions", "completedOn": "2026-05-13", "examDate": "2026-06-21", "pace": "medium", "maxN": 6, "tags": ["Mathematics"], "createdAt": "2026-05-13T10:00:00Z" },
+{ "id": "math_003", "name": "Matrices & Determinants", "completedOn": "2026-05-15", "examDate": "2026-06-21", "pace": "slow", "maxN": 8, "tags": ["Mathematics"], "createdAt": "2026-05-15T10:00:00Z" },
+{ "id": "math_004", "name": "Continuity and Differentiability", "completedOn": "2026-05-17", "examDate": "2026-06-21", "pace": "fast", "maxN": 8, "tags": ["Mathematics"], "createdAt": "2026-05-17T10:00:00Z" },
+{ "id": "bio_001", "name": "Reproduction in Organisms", "completedOn": "2026-05-12", "examDate": "2026-06-21", "pace": "slow", "maxN": 6, "tags": ["Biology"], "createdAt": "2026-05-12T10:00:00Z" },
+{ "id": "bio_002", "name": "Sexual Reproduction in Flowering Plants", "completedOn": "2026-05-14", "examDate": "2026-06-21", "pace": "medium", "maxN": 6, "tags": ["Biology"], "createdAt": "2026-05-14T10:00:00Z" },
+{ "id": "bio_003", "name": "Molecular Basis of Inheritance", "completedOn": "2026-05-16", "examDate": "2026-06-21", "pace": "fast", "maxN": 10, "tags": ["Biology"], "createdAt": "2026-05-16T10:00:00Z" },
+{ "id": "bio_004", "name": "Biotechnology: Principles & Processes", "completedOn": "2026-05-18", "examDate": "2026-06-21", "pace": "medium", "maxN": 6, "tags": ["Biology"], "createdAt": "2026-05-18T10:00:00Z" }
+],
+"completions": {
+"phy_001_1": true,
+"chem_001_1": true,
+"math_001_1": true,
+"bio_001_1": true
+},
+"revOverrides": {},
+"settings": {
+"activeTimes": ["9:00 AM", "6:00 PM"],
+"showMissed": true,
+"nightCheckin": true,
+"showFab": false,
+"theme": "dark",
+"bg": "dots",
+"anim": "smooth",
+"blur": true
+}
+}
