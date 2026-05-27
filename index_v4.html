@@ -427,36 +427,6 @@ body[data-color-mode="light"] .hm-cell[data-future="true"]{background:rgba(0,0,0
 .modal h3{font-size:18px;font-weight:700;margin-bottom:18px;color:var(--text);font-family:var(--mono)}
 .modal-footer{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
 
-/* SUB-CHAPTERS */
-.subchap-list{padding:0 16px 12px;}
-.subchap-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--b1);border-radius:12px;margin-bottom:8px;transition:border-color .15s;}
-.subchap-row:hover{border-color:var(--b2)}
-.subchap-name{flex:1;font-size:13px;font-weight:600;color:var(--text)}
-.subchap-prog{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
-.add-subchap-row{display:flex;gap:8px;padding:0 16px 14px;}
-.add-subchap-inp{flex:1;background:var(--bg);border:1px solid var(--b1);color:var(--text);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;transition:border-color .15s}
-.add-subchap-inp:focus{outline:none;border-color:var(--accent)}
-.subchap-section-hdr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:10px 16px 4px;border-top:1px solid var(--b1);}
-.subchap-rev-list{padding:0;}
-
-/* EDITABLE TAGS IN LISTS */
-.tag-editable{display:inline-flex;align-items:center;gap:1px;}
-.tag-action-btn{background:none;border:none;cursor:pointer;padding:0;color:var(--muted);display:inline-flex;align-items:center;line-height:1;transition:color .15s;width:14px;height:14px;justify-content:center;}
-.tag-action-btn .material-icons-round{font-size:10px !important;}
-.tag-action-btn:hover{color:var(--text)}
-.tag-action-btn.del:hover{color:var(--red)}
-.tag-undo-btn{font-size:10px;font-weight:600;padding:3px 8px;border-radius:var(--radius-pill);border:1px solid var(--red);background:rgba(248,113,113,.1);color:var(--red);cursor:pointer;white-space:nowrap;font-family:var(--sans);transition:all .15s;}
-.tag-undo-btn:hover{background:rgba(248,113,113,.2)}
-
-/* SUB-CHAPTER EXPANDABLE ROWS */
-.sc-expand{background:var(--bg);border:1px solid var(--b1);border-radius:10px;margin-bottom:6px;overflow:hidden;transition:border-color .15s;}
-.sc-expand:hover{border-color:var(--b2)}
-.sc-hdr{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;}
-.sc-arrow{color:var(--muted);font-size:16px;transition:transform var(--anim-dur);flex-shrink:0;line-height:1}
-.sc-arrow.open{transform:rotate(90deg)}
-.sc-body{display:none;border-top:1px solid var(--b1);}
-.sc-body.open{display:block}
-
 #tour-overlay { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
 .tour-highlight { position: absolute; border: 2px solid var(--accent); box-shadow: 0 0 0 9999px rgba(0,0,0,0.7); border-radius: 12px; transition: all 0.4s cubic-bezier(.4,0,.2,1); }
 body[data-color-mode="light"] .tour-highlight { box-shadow: 0 0 0 9999px rgba(255,255,255,0.7); }
@@ -511,6 +481,19 @@ hr{border:none;border-top:1px solid var(--b1);margin:16px 0}
   <a href="#settings" class="dk-btn" id="dk-settings">
     <span class="mi material-icons-round">settings</span><span class="dk-txt">Settings</span>
     <div class="notif-dot" id="notif-dot" style="position:absolute;top:6px;right:6px;display:none;"></div>
+  </a>
+  
+  <!-- App Icon / About Page Launch Button -->
+  <a href="#about" class="dk-btn" id="dk-about" style="padding: 10px 14px;">
+     <svg width="26" height="26" viewBox="0 0 24 24" fill="url(#gradLogo)">
+       <defs>
+         <linearGradient id="gradLogo" x1="0%" y1="0%" x2="100%" y2="100%">
+           <stop offset="0%" stop-color="#4f9cf9" />
+           <stop offset="100%" stop-color="#a78bfa" />
+         </linearGradient>
+       </defs>
+       <path d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3ZM18.82 9L12 12.72L5.18 9L12 5.28L18.82 9ZM17 14.5V17.5L12 20L7 17.5V14.5L12 17L17 14.5Z" />
+     </svg>
   </a>
 </nav>
 
@@ -584,10 +567,7 @@ hr{border:none;border-top:1px solid var(--b1);margin:16px 0}
               <div id="mode-exam-block"><input class="fi" type="date" id="in-exam"><div class="exam-prev" id="exam-preview">Pick exam date</div></div>
               <div id="mode-manual-block" class="hidden"><input class="fi" type="number" id="in-n" value="6" min="1" max="20" placeholder="Number of revisions"></div>
             </div>
-            <div class="fl"><label style="display:flex;align-items:center;justify-content:space-between">
-              <span>Tags <span style="color:var(--dim);font-size:10px;text-transform:none;letter-spacing:0;font-weight:500">(press Enter)</span></span>
-              <button type="button" class="btn btn-g" style="padding:3px 10px;font-size:11px;display:flex;align-items:center;gap:4px;" onclick="autoTagAdd()" title="Auto-detect subject tag from chapter name"><span class="material-icons-round" style="font-size:13px">auto_awesome</span>Auto Tag</button>
-            </label>
+            <div class="fl"><label>Tags <span style="color:var(--dim);font-size:10px;text-transform:none;letter-spacing:0;font-weight:500">(press Enter)</span></label>
               <div class="tags-wrap" id="add-tags-wrap" onclick="document.getElementById('add-tag-input').focus()"><input class="tag-inp" id="add-tag-input" placeholder="type tag + Enter" onkeydown="addTagKD(event,'add')"></div>
             </div>
             
@@ -691,13 +671,36 @@ hr{border:none;border-top:1px solid var(--b1);margin:16px 0}
               <button class="btn btn-d" onclick="clearAll()" style="display:flex;align-items:center;gap:8px"><span class="material-icons-round" style="font-size:16px">delete_forever</span>Clear All Data</button>
           </div>
         </div>
-        <div class="scard glass" style="margin-top:0">
-          <h3><span class="material-icons-round" style="font-size:18px">school</span> About & Interactive Tour</h3>
-          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Nisorevice uses <b>Spaced Repetition</b> to schedule review dates for chapters — locking topics into long-term memory in time for your exams.</p>
-          <button class="btn btn-p" onclick="startTour()" style="display:flex;align-items:center;gap:8px"><span class="material-icons-round" style="font-size:16px">explore</span> Start Interactive Tour</button>
-        </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ════ ABOUT / HOME ════ -->
+<div class="view" id="view-about">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px; text-align: center;">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="url(#gradLogoLarge)" style="margin-bottom:24px">
+      <defs>
+        <linearGradient id="gradLogoLarge" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f9cf9" />
+          <stop offset="100%" stop-color="#a78bfa" />
+        </linearGradient>
+      </defs>
+      <path d="M12 3L1 9L12 15L21 10.09V17H23V9L12 3ZM18.82 9L12 12.72L5.18 9L12 5.28L18.82 9ZM17 14.5V17.5L12 20L7 17.5V14.5L12 17L17 14.5Z" />
+    </svg>
+    <h2 style="font-size:32px; font-weight:800; font-family:var(--mono); margin-bottom:16px; color:var(--text);">Welcome to Nisorevice</h2>
+    
+    <div class="scard glass" style="text-align: left; margin-bottom: 32px;">
+      <h3 style="font-size:18px; margin-bottom:12px; font-family:var(--mono);">Master Your Syllabus</h3>
+      <p style="color:var(--muted); font-size:14px; line-height:1.6; margin-bottom:16px;">
+        Nisorevice is designed to help you completely master your studies using <b>Spaced Repetition</b>.
+      </p>
+      <p style="color:var(--muted); font-size:14px; line-height:1.6;">
+        Instead of cramming, we schedule intelligent review dates for every chapter you study. By revisiting topics exactly when you are about to forget them, you'll lock them into your long-term memory perfectly in time for your exams.
+      </p>
+    </div>
+
+    <button class="btn btn-p" style="font-size: 16px; padding: 12px 32px;" onclick="startTour()">Start Interactive Tour</button>
   </div>
 </div>
 
@@ -756,23 +759,6 @@ hr{border:none;border-top:1px solid var(--b1);margin:16px 0}
     <div class="modal-footer">
       <button class="btn btn-p" onclick="saveRevEdit()">Save</button>
       <button class="btn btn-g" onclick="closeModal('rev-modal')">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- SUB-CHAPTER MODAL -->
-<div class="modal-bg hidden" id="subchap-modal">
-  <div class="modal" style="max-width:600px">
-    <h3 id="subchap-modal-title">Sub-chapters</h3>
-    <input type="hidden" id="subchap-task-id">
-    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Add sub-topics or sub-chapters. Each gets its own spaced repetition schedule.</div>
-    <div id="subchap-list-wrap"></div>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <input class="fi" type="text" id="subchap-new-name" placeholder="Sub-chapter name..." style="flex:1">
-      <button class="btn btn-p" onclick="addSubChap()" style="padding:10px 16px;white-space:nowrap"><span class="material-icons-round" style="font-size:16px;vertical-align:middle">add</span> Add</button>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-g" onclick="closeModal('subchap-modal')">Done</button>
     </div>
   </div>
 </div>
@@ -973,34 +959,9 @@ function calcStreak(){
   return streak;
 }
 
-function tagsHtml(tags, taskId){
+function tagsHtml(tags){
   if(!tags||!tags.length)return'';
-  return tags.map(t=>{
-    const s=detectSubject(t);
-    const tagHtml=`${s?`<span class="material-icons-round" style="font-size:11px;margin-right:2px">${s.i}</span>`:''}${esc(t)}`;
-    if(taskId){
-      const safeT=t.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      return`<span class="tag tag-editable" style="${s?'background:'+s.c+';border-color:transparent':''}">${tagHtml}<button class="tag-action-btn" onclick="editTagInline(event,'${taskId}','${safeT}')" title="Edit tag"><span class="material-icons-round">edit</span></button><button class="tag-action-btn del" onclick="deleteTagFromTask('${taskId}','${safeT}');event.stopPropagation()" title="Remove tag"><span class="material-icons-round">close</span></button></span>`;
-    }
-    return`<span class="tag" style="${s?'background:'+s.c+';border-color:transparent':''}">${tagHtml}</span>`;
-  }).join('');
-}
-
-function editTagInline(e, taskId, oldTag){
-  e.stopPropagation();
-  const task=S.tasks.find(t=>t.id===taskId);if(!task)return;
-  const newTag=prompt('Edit tag:',oldTag);
-  if(newTag===null)return;
-  const trimmed=newTag.trim();
-  if(!trimmed){toast('Tag cannot be empty');return}
-  task.tags=(task.tags||[]).map(t=>t===oldTag?trimmed:t);
-  save();
-  const av=document.querySelector('.view.active');
-  if(av?.id==='view-today')renderToday();
-  else if(av?.id==='view-tasks')renderTasks();
-  else if(av?.id==='view-schedule')renderSchedule();
-  else if(av?.id==='view-completed')renderCompleted();
-  toast('✓ Tag updated');
+  return tags.map(t=>{const s=detectSubject(t);return`<span class="tag" style="${s?'background:'+s.c+';border-color:transparent':''}">${s?`<span class="material-icons-round" style="font-size:12px;margin-right:2px">${s.i}</span>`:''}${esc(t)}</span>`}).join('');
 }
 
 function toggleKey(key, e){
@@ -1054,16 +1015,6 @@ function renderToday(){
       if(rev.date===today){if(isDone)done.push({task,rev,key});else due.push({task,rev,key});}
       else if(rev.date<today&&!isDone)missed.push({task,rev,key});
     }
-    // Sub-chapters
-    (task.subChapters||[]).forEach(sc=>{
-      const scRevs=getSubChapRevDates(task,sc);
-      scRevs.forEach(rev=>{
-        const key=sc.id+'_'+rev.n,isDone=!!S.completions[key];
-        const scTask={...task, name:task.name+' › '+sc.name, id:sc.id, _parentId:task.id};
-        if(rev.date===today){if(isDone)done.push({task:scTask,rev,key});else due.push({task:scTask,rev,key});}
-        else if(rev.date<today&&!isDone)missed.push({task:scTask,rev,key});
-      });
-    });
   });
   
   const tot=due.length+missed.length;
@@ -1168,7 +1119,7 @@ function renderList(title, items, statusCls){
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <div class="t-pace"><span class="material-icons-round" style="font-size:10px">${paceConfig.i}</span> ${paceConfig.label}</div>
-            ${tagsHtml(task.tags, task.id)}
+            ${tagsHtml(task.tags)}
           </div>
         </div>
         <div class="t-rev ${rowStatusCls}">Rev ${rev.n}</div>
@@ -1321,149 +1272,6 @@ function renderHeatmapInto(wrap){
   });
 }
 
-// AUTO TAG: detect subject from name field and add it
-function autoTagAdd(){
-  const name=document.getElementById('in-name').value.trim();
-  if(!name){toast('Enter a chapter name first');return}
-  const sub=detectSubject(name);
-  if(!sub){toast('No subject detected — try adding Physics/Maths keywords');return}
-  if(!addTags.includes(sub.n)){addTags.push(sub.n);renderTagsIn('add-tags-wrap','add-tag-input',addTags);toast('✓ Auto-tagged: '+sub.n)}
-  else{toast(sub.n+' already added')}
-}
-
-// SUB-CHAPTERS: each sub-chapter gets own revision schedule inheriting parent's settings
-function getSubChapRevDates(parentTask, sc){
-  const pace = PACES[sc.pace||parentTask.pace]||PACES.fast;
-  const maxN = sc.maxN || parentTask.maxN || 6;
-  return Array.from({length:maxN},(_,i)=>{
-    const n=i+1, offset=pace.fn(n), baseDate=addDays(sc.completedOn||parentTask.completedOn, offset);
-    const ok=sc.id+'_rev_'+n;
-    return{n, date:S.revOverrides[ok]||baseDate, offset, baseDate, ok};
-  });
-}
-
-function openSubChaps(taskId){
-  const task=S.tasks.find(t=>t.id===taskId);if(!task)return;
-  if(!task.subChapters)task.subChapters=[];
-  document.getElementById('subchap-task-id').value=taskId;
-  document.getElementById('subchap-modal-title').textContent='Sub-chapters: '+task.name;
-  document.getElementById('subchap-new-name').value='';
-  renderSubChapList(task);
-  document.getElementById('subchap-modal').classList.remove('hidden');
-}
-
-function renderSubChapList(task){
-  const wrap=document.getElementById('subchap-list-wrap');
-  if(!task.subChapters||!task.subChapters.length){
-    wrap.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No sub-chapters yet. Add one below!</div>';
-    return;
-  }
-  wrap.innerHTML=task.subChapters.map((sc,idx)=>{
-    const scRevs=getSubChapRevDates(task,sc);
-    const scDone=scRevs.filter(r=>!!S.completions[sc.id+'_'+r.n]).length;
-    const scPct=scRevs.length?Math.round(scDone/scRevs.length*100):0;
-    return`<div class="subchap-row" style="margin-bottom:10px">
-      <div style="flex:1;min-width:0">
-        <div class="subchap-name">${esc(sc.name)}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono)">Started ${fmt(sc.completedOn||task.completedOn)} · ${scDone}/${scRevs.length} done</div>
-        <div style="margin-top:6px;display:flex;gap:6px;align-items:center">
-          <div style="flex:1;height:4px;background:var(--b2);border-radius:2px;overflow:hidden"><div style="width:${scPct}%;height:100%;background:var(--accent);transition:width .3s"></div></div>
-          <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">${scPct}%</span>
-        </div>
-      </div>
-      <button class="icon-btn dngr" onclick="delSubChap('${task.id}',${idx})" title="Delete"><span class="material-icons-round" style="font-size:16px">delete</span></button>
-    </div>`;
-  }).join('');
-}
-
-function addSubChap(){
-  const taskId=document.getElementById('subchap-task-id').value;
-  const task=S.tasks.find(t=>t.id===taskId);if(!task)return;
-  const name=document.getElementById('subchap-new-name').value.trim();
-  if(!name){toast('Enter sub-chapter name');return}
-  if(!task.subChapters)task.subChapters=[];
-  task.subChapters.push({
-    id:'sc'+Date.now(),
-    name,
-    completedOn:task.completedOn,
-    pace:task.pace,
-    maxN:task.maxN
-  });
-  save();
-  document.getElementById('subchap-new-name').value='';
-  renderSubChapList(task);
-  renderTasks();
-  toast('✓ Sub-chapter added');
-}
-
-function delSubChap(taskId, idx){
-  const task=S.tasks.find(t=>t.id===taskId);if(!task||!task.subChapters)return;
-  const sc=task.subChapters[idx];
-  if(sc){
-    Object.keys(S.completions).filter(k=>k.startsWith(sc.id+'_')).forEach(k=>delete S.completions[k]);
-    Object.keys(S.revOverrides).filter(k=>k.startsWith(sc.id+'_')).forEach(k=>delete S.revOverrides[k]);
-  }
-  task.subChapters.splice(idx,1);
-  save();renderSubChapList(task);renderTasks();toast('Deleted');
-}
-
-// EDITABLE TAGS IN LISTS: pending deletions tracked until page change
-let _pendingTagDeletes = {}; // taskId -> {tag, timer}
-
-function deleteTagFromTask(taskId, tag){
-  const task = S.tasks.find(t=>t.id===taskId);
-  if(!task) return;
-  // Cancel any prior undo for same tag
-  if(_pendingTagDeletes[taskId+'__'+tag]){
-    clearTimeout(_pendingTagDeletes[taskId+'__'+tag].timer);
-  }
-  // Remove from task immediately (so UI reflects it), but keep an undo window
-  const originalTags = [...(task.tags||[])];
-  task.tags = (task.tags||[]).filter(t=>t!==tag);
-  save();
-  // Set undo timer — if user changes page, it's already saved (permanent)
-  const timer = setTimeout(()=>{
-    delete _pendingTagDeletes[taskId+'__'+tag];
-  }, 8000);
-  _pendingTagDeletes[taskId+'__'+tag] = {timer, originalTags};
-  
-  // Re-render current view with undo button
-  const av=document.querySelector('.view.active');
-  if(av?.id==='view-today') renderToday();
-  else if(av?.id==='view-tasks') renderTasks();
-  else if(av?.id==='view-schedule') renderSchedule();
-  else if(av?.id==='view-completed') renderCompleted();
-  
-  // Toast with undo
-  const t=document.getElementById('toast');
-  t.innerHTML=`Tag removed <button onclick="undoTagDelete('${taskId}','${tag.replace(/'/g,"\\'")}',this)" style="background:none;border:1px solid var(--red);color:var(--red);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;cursor:pointer;margin-left:8px;font-family:var(--sans)">Undo</button>`;
-  t.classList.add('show');
-  clearTimeout(t._t);
-  t._t=setTimeout(()=>t.classList.remove('show'),6000);
-}
-
-function undoTagDelete(taskId, tag, btn){
-  const key = taskId+'__'+tag;
-  if(_pendingTagDeletes[key]){
-    clearTimeout(_pendingTagDeletes[key].timer);
-    const task = S.tasks.find(t=>t.id===taskId);
-    if(task){
-      task.tags = _pendingTagDeletes[key].originalTags;
-      save();
-    }
-    delete _pendingTagDeletes[key];
-  }
-  const av=document.querySelector('.view.active');
-  if(av?.id==='view-today') renderToday();
-  else if(av?.id==='view-tasks') renderTasks();
-  else if(av?.id==='view-schedule') renderSchedule();
-  else if(av?.id==='view-completed') renderCompleted();
-  toast('↩ Tag restored');
-}
-
-// Clear pending deletions on page navigation (they're already saved)
-window.addEventListener('hashchange', ()=>{ _pendingTagDeletes={}; });
-
 function renderTasks(){
   const el=document.getElementById('tasks-list');
   document.getElementById('tasks-label').textContent=S.tasks.length+' chapters';
@@ -1484,63 +1292,17 @@ function renderTasks(){
         <div class="te-info">
           <div class="te-name">${sub?`<span class="material-icons-round" style="font-size:16px">${sub.i}</span> `:''}${esc(task.name)}</div>
           <div class="te-sub">Started ${fmt(task.completedOn)}${task.examDate?' · Exam '+fmt(task.examDate):''}</div>
-          ${task.tags&&task.tags.length?'<div style="margin-top:6px">'+tagsHtml(task.tags, task.id)+'</div>':''}
+          ${task.tags&&task.tags.length?'<div style="margin-top:6px">'+tagsHtml(task.tags)+'</div>':''}
           <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--text);margin-top:6px">${doneCount}/${revs.length} Done · ${pct}%</div>
         </div>
         <span class="tb ${task.pace}"><span class="material-icons-round" style="font-size:10px;vertical-align:middle;margin-right:2px">${paceConfig.i}</span>${paceConfig.label}</span>
         <div onclick="event.stopPropagation()" style="display:flex;gap:4px;flex-shrink:0;margin-left:8px">
-          <button class="icon-btn" onclick="openSubChaps('${task.id}')" title="Sub-chapters"><span class="material-icons-round" style="font-size:18px;">account_tree</span></button>
           <button class="icon-btn" onclick="openEdit('${task.id}')" title="Edit"><span class="material-icons-round" style="font-size:18px;">edit</span></button>
           <button class="icon-btn dngr" onclick="delTask('${task.id}')" title="Delete"><span class="material-icons-round" style="font-size:18px;">delete</span></button>
         </div>
       </div>
       <div class="te-body ${isOpen?'open':''}" id="teb-${task.id}">
-        ${(task.subChapters&&task.subChapters.length)?`
-        <div class="subchap-section-hdr" style="display:flex;align-items:center;justify-content:space-between;padding-right:16px">
-          <span><span class="material-icons-round" style="font-size:14px;vertical-align:middle;margin-right:4px">account_tree</span>Sub-chapters (${task.subChapters.length})</span>
-          <button class="icon-btn" onclick="openSubChaps('${task.id}');event.stopPropagation()" style="font-size:11px;padding:3px 8px"><span class="material-icons-round" style="font-size:14px">edit</span></button>
-        </div>
-        <div style="padding:8px 14px 4px">
-          ${task.subChapters.map((sc,scIdx)=>{
-            const scRevs=getSubChapRevDates(task,sc);
-            const scDone=scRevs.filter(r=>!!S.completions[sc.id+'_'+r.n]).length;
-            const scPct=scRevs.length?Math.round(scDone/scRevs.length*100):0;
-            const scNext=scRevs.find(r=>!S.completions[sc.id+'_'+r.n]);
-            const scIsOpen=expandedChapters.has(sc.id);
-            const scRevRows=scRevs.map(rev=>{
-              const key=sc.id+'_'+rev.n,isDone=!!S.completions[key];
-              const stCls=isDone?'done':(isPast(rev.date)&&!isToday(rev.date)?'missed':(isToday(rev.date)?'due':'up'));
-              return`<div class="t-row" style="padding:8px 14px;">
-                <div class="status-cbx-wrap" onclick="toggleKey('${key}',event)" title="Toggle Done">
-                  <div class="t-cbx ${stCls}" style="width:20px;height:20px;border-radius:5px"><span class="mi material-icons-round" style="font-size:14px">check</span></div>
-                </div>
-                <div class="t-main"><div class="t-top">
-                  <span class="t-name" style="font-size:13px">Revision ${rev.n}</span>
-                  <span class="t-date">${fmt(rev.date)}</span>
-                </div></div>
-                <div class="t-rev ${stCls}" style="font-size:12px">${stCls.toUpperCase()}</div>
-              </div>`;
-            }).join('');
-            return`<div class="sc-expand" id="scexp-${sc.id}">
-              <div class="sc-hdr" onclick="toggleScExp('${sc.id}')">
-                <span class="sc-arrow material-icons-round ${scIsOpen?'open':''}" id="scarr-${sc.id}">chevron_right</span>
-                <div style="flex:1;min-width:0">
-                  <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(sc.name)}</div>
-                  <div style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:1px">${scDone}/${scRevs.length} done${scNext?' · Next: '+fmt(scNext.date):' · ✓ Complete'}</div>
-                </div>
-                <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-                  <div style="width:44px;height:4px;background:var(--b2);border-radius:2px;overflow:hidden"><div style="width:${scPct}%;height:100%;background:var(--accent)"></div></div>
-                  <span style="font-size:10px;color:var(--muted);font-family:var(--mono);width:28px;text-align:right">${scPct}%</span>
-                </div>
-              </div>
-              <div class="sc-body ${scIsOpen?'open':''}" id="scbody-${sc.id}">
-                <div class="t-wrap" style="margin:0;border:none;border-radius:0;">${scRevRows}</div>
-              </div>
-            </div>`;
-          }).join('')}
-        </div>`:''}
-        <div class="t-wrap glass" style="margin:0;border:none;border-radius:0;${task.subChapters&&task.subChapters.length?'border-top:1px solid var(--b1)':''}">
-          ${task.subChapters&&task.subChapters.length?`<div class="subchap-section-hdr">Chapter Revisions</div>`:''}
+        <div class="t-wrap glass" style="margin:0;border:none;border-radius:0;">
           ${revs.map(rev=>{
             const key=task.id+'_'+rev.n,isDone=!!S.completions[key];
             const stCls = isDone ? 'done' : (isPast(rev.date)&&!isToday(rev.date) ? 'missed' : (isToday(rev.date)?'due':'up'));
@@ -1572,13 +1334,6 @@ function toggleExp(id){
   const isOpening = !body.classList.contains('open');
   if(isOpening) expandedChapters.add(id); else expandedChapters.delete(id);
   arr.classList.toggle('open', isOpening);body.classList.toggle('open', isOpening);
-}
-function toggleScExp(id){
-  const arr=document.getElementById('scarr-'+id),body=document.getElementById('scbody-'+id);
-  if(!arr||!body)return;
-  const isOpening=!body.classList.contains('open');
-  if(isOpening) expandedChapters.add(id); else expandedChapters.delete(id);
-  arr.classList.toggle('open',isOpening);body.classList.toggle('open',isOpening);
 }
 function delTask(id){
   if(!confirm('Delete chapter?'))return;
@@ -1779,7 +1534,7 @@ function renderSchedList(){
           <td style="font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:700">
              <span class="material-icons-round" style="font-size:10px;vertical-align:middle;margin-right:2px">${PACES[task.pace].i}</span>${PACES[task.pace].label}
           </td>
-          <td style="font-size:11px;color:var(--muted);">${tagsHtml(task.tags, task.id)}</td>
+          <td style="font-size:11px;color:var(--muted);">${tagsHtml(task.tags)}</td>
         </tr>`;
       }).join('')}</tbody>
     </table>
@@ -2017,12 +1772,11 @@ function applySettings(){
 const TOUR_STEPS = [
   { hash: 'today', t: 'today-banner-wrap', title: 'Daily Scorecard', d: 'Your progress for the day is graded here. Try to maintain a perfect streak!' },
   { hash: 'today', t: 'today-due-wrap', title: 'Check Due & Missed', d: 'Here is where you see what needs to be revised today, and catch up on missed chapters.' },
-  { hash: 'tasks', t: 'view-tasks', title: 'Chapters & Sub-chapters', d: 'Manage all your study topics here. Expand a chapter to see its revision schedule. Use the tree icon to add sub-chapters — each gets its own spaced repetition track!' },
-  { hash: 'add', t: 'in-name', title: 'Add a Chapter', d: 'Type in a chapter name to track it. Hit Auto Tag to automatically detect the subject like Physics or Maths!' },
+  { hash: 'tasks', t: 'view-tasks', title: 'Chapters', d: 'Manage all your study topics and check their specific revision timelines here.' },
+  { hash: 'add', t: 'in-name', title: 'Add a Subject', d: 'Type in a chapter name to track it. The auto-tagger will automatically assign subjects like Physics or Math!' },
   { hash: 'add', t: 'pc-fast', title: 'Set the Pace', d: 'Choose how intensely you want to revise. Intense spaces revisions closely, Relaxed spreads them out.' },
-  { hash: 'add', t: 'add-tags-wrap', title: 'Tags', d: 'Add tags to organise chapters by subject or topic. You can edit or delete tags later from any list view.' },
   { hash: 'calendar', t: 'cal-main-wrap', title: 'Calendar', d: 'Click any date to preview upcoming revisions or review historical data.' },
-  { hash: 'today', t: 'heatmap-wrap', title: 'Activity Heatmap', d: 'Watch your consistency grow over time. Keep the streak alive!' }
+  { hash: 'today', t: 'heatmap-wrap', title: 'Activity Heatmap', d: 'Watch your consistency grow over time at the bottom of the Today page.' }
 ];
 let currentTourStep = 0;
 
@@ -2068,27 +1822,15 @@ function renderTourStep() {
       document.getElementById('tour-text').textContent = step.d;
       document.getElementById('tour-next').textContent = currentTourStep === TOUR_STEPS.length - 1 ? 'Finish' : 'Next';
       
-      const POP_W = 300, POP_H = 220, MARGIN = 10;
-      
-      // Try below first, then above, then lock to edge
       let popTop = rect.bottom + 16;
-      if (popTop + POP_H > window.innerHeight - MARGIN) {
-        popTop = rect.top - POP_H - 16;
-      }
-      // If still off top, lock to margin from top
-      if (popTop < MARGIN) popTop = MARGIN;
-      // If still off bottom, lock to margin from bottom
-      if (popTop + POP_H > window.innerHeight - MARGIN) {
-        popTop = window.innerHeight - POP_H - MARGIN;
-      }
+      if (popTop + 200 > window.innerHeight) popTop = rect.top - 200; 
       
-      let popLeft = rect.left + (rect.width / 2) - (POP_W / 2);
-      if (popLeft < MARGIN) popLeft = MARGIN;
-      if (popLeft + POP_W > window.innerWidth - MARGIN) popLeft = window.innerWidth - POP_W - MARGIN;
+      let popLeft = rect.left + (rect.width / 2) - 150;
+      if (popLeft < 10) popLeft = 10;
+      if (popLeft + 300 > window.innerWidth) popLeft = window.innerWidth - 310;
       
-      pop.style.top = Math.max(MARGIN, popTop) + 'px';
+      pop.style.top = popTop + 'px';
       pop.style.left = popLeft + 'px';
-      pop.style.maxWidth = (window.innerWidth - MARGIN * 2) + 'px';
   }, 350);
 }
 
@@ -2151,9 +1893,11 @@ handleHash();
 updateNotifUI();
 if(Notification.permission==='granted')rescheduleNotifs();
 
-// Auto-start tour on first visit
+// Launch Tour if first visit
 if(!localStorage.getItem('nisorevice_tour_done')){
-    setTimeout(() => startTour(), 600);
+    setTimeout(() => {
+        window.location.hash = 'about';
+    }, 100);
 }
 </script>
 </body>
